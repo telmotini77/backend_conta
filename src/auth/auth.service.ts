@@ -1,0 +1,85 @@
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../prisma.service';
+import * as bcrypt from 'bcrypt';
+import { SignupDto, LoginDto } from './dto/auth.dto';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
+
+  async signup(dto: SignupDto) {
+    // 1. Validate if user exists (email or ruc)
+    const existingEmail = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (existingEmail) {
+      throw new BadRequestException(
+        'El correo electrónico ya está registrado.',
+      );
+    }
+
+    const existingRuc = await this.prisma.user.findUnique({
+      where: { ruc: dto.ruc },
+    });
+    if (existingRuc) {
+      throw new BadRequestException('El RUC ya está registrado.');
+    }
+
+    // 2. Hash password
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // 3. Create user
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        password: hashedPassword,
+        name: dto.name,
+        ruc: dto.ruc,
+      },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      ruc: user.ruc,
+      createdAt: user.createdAt,
+    };
+  }
+
+  async login(dto: LoginDto) {
+    // 1. Find user
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
+    }
+
+    // 2. Validate password
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
+    }
+
+    // 3. Sign token
+    const payload = { email: user.email, sub: user.id };
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        ruc: user.ruc,
+      },
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+}

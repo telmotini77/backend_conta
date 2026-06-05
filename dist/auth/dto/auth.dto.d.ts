@@ -1,0 +1,10 @@
+export declare class SignupDto {
+    email: string;
+    password: string;
+    name: string;
+    ruc: string;
+}
+export declare class LoginDto {
+    email: string;
+    password: string;
+}
