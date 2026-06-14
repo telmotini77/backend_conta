@@ -1,8 +1,10 @@
 import { PrismaService } from '../prisma.service';
 import { CreateAssetDto } from './dto/assets.dto';
+import { AccountingService } from '../accounting/accounting.service';
 export declare class AssetsService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private accountingService;
+    constructor(prisma: PrismaService, accountingService: AccountingService);
     findAll(userId: string): Promise<{
         id: string;
         name: string;
@@ -34,8 +36,8 @@ export declare class AssetsService {
     } & {
         id: string;
         date: Date;
-        assetId: string;
         amount: number;
+        assetId: string;
         period: string;
     })[]>;
     generateMonthlyDepreciations(userId: string, period: string): Promise<({
@@ -51,8 +53,8 @@ export declare class AssetsService {
     } & {
         id: string;
         date: Date;
-        assetId: string;
         amount: number;
+        assetId: string;
         period: string;
     })[]>;
 }

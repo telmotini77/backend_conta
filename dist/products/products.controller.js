@@ -33,6 +33,9 @@ let ProductsController = class ProductsController {
     async createTransaction(req, dto) {
         return this.productsService.createTransaction(req.user.id, dto.productId, dto.type, Number(dto.quantity));
     }
+    async toggleIva(req, id) {
+        return this.productsService.toggleIva(req.user.id, id);
+    }
 };
 exports.ProductsController = ProductsController;
 __decorate([
@@ -58,6 +61,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, products_dto_1.CreateTransactionDto]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "createTransaction", null);
+__decorate([
+    (0, common_1.Put)(':id/toggle-iva'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "toggleIva", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('products'),

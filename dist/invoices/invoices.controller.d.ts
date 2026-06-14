@@ -12,19 +12,40 @@ export declare class InvoicesController {
         id: string;
         createdAt: Date;
         userId: string;
-        amount: number;
-        status: import("@prisma/client").$Enums.InvoiceStatus;
         claveAcceso: string;
         clientName: string;
+        amount: number;
+        subtotal: number;
+        iva: number;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
+        sentToClient: boolean;
     }[]>;
     create(req: RequestWithUser, dto: CreateInvoiceDto): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
-        amount: number;
-        status: import("@prisma/client").$Enums.InvoiceStatus;
         claveAcceso: string;
         clientName: string;
+        amount: number;
+        subtotal: number;
+        iva: number;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
+        sentToClient: boolean;
+    }>;
+    send(req: RequestWithUser, id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        userId: string;
+        claveAcceso: string;
+        clientName: string;
+        amount: number;
+        subtotal: number;
+        iva: number;
+        status: import("@prisma/client").$Enums.InvoiceStatus;
+        sentToClient: boolean;
+    }>;
+    getXml(req: RequestWithUser, id: string): Promise<{
+        xml: string;
     }>;
 }
 export {};

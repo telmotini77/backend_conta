@@ -5,6 +5,7 @@ export declare class CreateProductDto {
     cost: number;
     price: number;
     stock?: number;
+    hasIva?: boolean;
 }
 export declare class CreateTransactionDto {
     productId: string;

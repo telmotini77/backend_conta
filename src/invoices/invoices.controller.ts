@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Body,
+  Param,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -29,5 +30,16 @@ export class InvoicesController {
   @Post()
   async create(@Request() req: RequestWithUser, @Body() dto: CreateInvoiceDto) {
     return this.invoicesService.create(req.user.id, dto);
+  }
+
+  @Post(':id/send')
+  async send(@Request() req: RequestWithUser, @Param('id') id: string) {
+    return this.invoicesService.sendInvoiceToClient(req.user.id, id);
+  }
+
+  @Get(':id/xml')
+  async getXml(@Request() req: RequestWithUser, @Param('id') id: string) {
+    const xml = await this.invoicesService.getInvoiceXml(req.user.id, id);
+    return { xml };
   }
 }

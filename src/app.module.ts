@@ -7,6 +7,7 @@ import { AssetsModule } from './assets/assets.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { PurchasesModule } from './purchases/purchases.module';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
+import { AccountingModule } from './accounting/accounting.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ReconciliationModule } from './reconciliation/reconciliation.module';
     InvoicesModule,
     PurchasesModule,
     ReconciliationModule,
+    AccountingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

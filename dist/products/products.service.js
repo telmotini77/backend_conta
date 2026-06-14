@@ -43,8 +43,21 @@ let ProductsService = class ProductsService {
                 cost: Number(dto.cost),
                 price: Number(dto.price),
                 stock: Number(dto.stock || 0),
+                hasIva: dto.hasIva !== false,
                 userId,
             },
+        });
+    }
+    async toggleIva(userId, productId) {
+        const product = await this.prisma.product.findFirst({
+            where: { id: productId, userId },
+        });
+        if (!product) {
+            throw new common_1.BadRequestException('Producto no encontrado.');
+        }
+        return this.prisma.product.update({
+            where: { id: productId },
+            data: { hasIva: !product.hasIva },
         });
     }
     async seedInitialProducts(userId) {
@@ -58,6 +71,7 @@ let ProductsService = class ProductsService {
                         stock: 15,
                         cost: 450,
                         price: 800,
+                        hasIva: true,
                         userId,
                     },
                     {
@@ -66,6 +80,7 @@ let ProductsService = class ProductsService {
                         stock: 24,
                         cost: 280,
                         price: 500,
+                        hasIva: true,
                         userId,
                     },
                     {
@@ -74,6 +89,25 @@ let ProductsService = class ProductsService {
                         stock: 8,
                         cost: 120,
                         price: 250,
+                        hasIva: true,
+                        userId,
+                    },
+                    {
+                        sku: `BOOK-${userId.slice(0, 4)}`,
+                        name: 'Libro de Contabilidad General (Ecuador)',
+                        stock: 30,
+                        cost: 12,
+                        price: 25,
+                        hasIva: false,
+                        userId,
+                    },
+                    {
+                        sku: `MILK-${userId.slice(0, 4)}`,
+                        name: 'Leche Semidescremada 1L (Canasta Básica)',
+                        stock: 50,
+                        cost: 0.75,
+                        price: 1.10,
+                        hasIva: false,
                         userId,
                     },
                 ],
@@ -93,21 +127,19 @@ let ProductsService = class ProductsService {
         const newStock = type === client_1.TransactionType.INGRESS
             ? product.stock + quantity
             : product.stock - quantity;
-        return this.prisma.$transaction(async (tx) => {
-            await tx.product.update({
-                where: { id: productId },
-                data: { stock: newStock },
-            });
-            return tx.kardexTransaction.create({
-                data: {
-                    productId,
-                    type,
-                    quantity,
-                    unitCost: product.cost,
-                    totalCost: product.cost * quantity,
-                    balanceStock: newStock,
-                },
-            });
+        await this.prisma.product.update({
+            where: { id: productId },
+            data: { stock: newStock },
+        });
+        return this.prisma.kardexTransaction.create({
+            data: {
+                productId,
+                type,
+                quantity,
+                unitCost: product.cost,
+                totalCost: product.cost * quantity,
+                balanceStock: newStock,
+            },
         });
     }
 };

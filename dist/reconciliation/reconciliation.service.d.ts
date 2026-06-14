@@ -1,10 +1,12 @@
 import { PrismaService } from '../prisma.service';
 import { CreateCashTransactionDto, CreateWithholdingDto, MatchWithholdingDto } from './dto/reconciliation.dto';
 import { SriWithholdingsService } from './sri-withholdings.service';
+import { AccountingService } from '../accounting/accounting.service';
 export declare class ReconciliationService {
     private prisma;
     private sriWithholdings;
-    constructor(prisma: PrismaService, sriWithholdings: SriWithholdingsService);
+    private accountingService;
+    constructor(prisma: PrismaService, sriWithholdings: SriWithholdingsService, accountingService: AccountingService);
     getSummary(userId: string): Promise<{
         metrics: {
             totalRecaudado: number;
@@ -41,89 +43,89 @@ export declare class ReconciliationService {
             id: string;
             createdAt: Date;
             userId: string;
-            date: Date;
             type: import("@prisma/client").$Enums.WithholdingType;
+            date: Date;
             claveAcceso: string | null;
-            invoiceId: string | null;
-            purchaseId: string | null;
             numeroRetencion: string;
             amountRenta: number;
             amountIva: number;
             amountTotal: number;
             clientOrProviderRuc: string;
             clientOrProviderName: string;
-        }[];
-        cashTransactions: {
-            id: string;
-            createdAt: Date;
-            userId: string;
-            date: Date;
-            type: import("@prisma/client").$Enums.CashTransactionType;
-            amount: number;
-            source: import("@prisma/client").$Enums.CashTransactionSource;
-            description: string | null;
             invoiceId: string | null;
             purchaseId: string | null;
         }[];
+        cashTransactions: {
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            userId: string;
+            type: import("@prisma/client").$Enums.CashTransactionType;
+            date: Date;
+            amount: number;
+            invoiceId: string | null;
+            purchaseId: string | null;
+            source: import("@prisma/client").$Enums.CashTransactionSource;
+        }[];
     }>;
     createCashTransaction(userId: string, dto: CreateCashTransactionDto): Promise<{
+        description: string | null;
         id: string;
         createdAt: Date;
         userId: string;
-        date: Date;
         type: import("@prisma/client").$Enums.CashTransactionType;
+        date: Date;
         amount: number;
-        source: import("@prisma/client").$Enums.CashTransactionSource;
-        description: string | null;
         invoiceId: string | null;
         purchaseId: string | null;
+        source: import("@prisma/client").$Enums.CashTransactionSource;
     }>;
     createWithholding(userId: string, dto: CreateWithholdingDto): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
-        date: Date;
         type: import("@prisma/client").$Enums.WithholdingType;
+        date: Date;
         claveAcceso: string | null;
-        invoiceId: string | null;
-        purchaseId: string | null;
         numeroRetencion: string;
         amountRenta: number;
         amountIva: number;
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
+        invoiceId: string | null;
+        purchaseId: string | null;
     }>;
     matchWithholding(userId: string, dto: MatchWithholdingDto): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
-        date: Date;
         type: import("@prisma/client").$Enums.WithholdingType;
+        date: Date;
         claveAcceso: string | null;
-        invoiceId: string | null;
-        purchaseId: string | null;
         numeroRetencion: string;
         amountRenta: number;
         amountIva: number;
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
+        invoiceId: string | null;
+        purchaseId: string | null;
     }>;
     syncWithholdings(userId: string): Promise<{
         id: string;
         createdAt: Date;
         userId: string;
-        date: Date;
         type: import("@prisma/client").$Enums.WithholdingType;
+        date: Date;
         claveAcceso: string | null;
-        invoiceId: string | null;
-        purchaseId: string | null;
         numeroRetencion: string;
         amountRenta: number;
         amountIva: number;
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
+        invoiceId: string | null;
+        purchaseId: string | null;
     }[]>;
 }

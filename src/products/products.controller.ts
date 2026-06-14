@@ -2,7 +2,9 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
+  Param,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -45,5 +47,10 @@ export class ProductsController {
       dto.type,
       Number(dto.quantity),
     );
+  }
+
+  @Put(':id/toggle-iva')
+  async toggleIva(@Request() req: RequestWithUser, @Param('id') id: string) {
+    return this.productsService.toggleIva(req.user.id, id);
   }
 }

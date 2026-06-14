@@ -1,10 +1,14 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateAssetDto } from './dto/assets.dto';
+import { AccountingService } from '../accounting/accounting.service';
 
 @Injectable()
 export class AssetsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accountingService: AccountingService,
+  ) {}
 
   async findAll(userId: string) {
     return this.prisma.asset.findMany({
@@ -91,6 +95,31 @@ export class AssetsService {
           asset: true,
         },
       });
+
+      // Generate depreciation accounting journal entry
+      try {
+        await this.accountingService.createAutomaticEntry(userId, {
+          type: 'DEPRECIATION',
+          description: `Depreciación Mensual Activo [${asset.name}] Período ${period}`,
+          date: new Date(),
+          lines: [
+            {
+              accountCode: '5.01.02',
+              accountName: 'Gasto Depreciación Activos Fijos',
+              debit: monthlyAmount,
+              credit: 0,
+            },
+            {
+              accountCode: '1.02.01',
+              accountName: 'Depreciación Acumulada Activos Fijos',
+              debit: 0,
+              credit: monthlyAmount,
+            },
+          ],
+        });
+      } catch (err) {
+        console.error('Failed to log automatic depreciation journal entry:', err);
+      }
 
       generated.push(entry);
     }

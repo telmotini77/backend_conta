@@ -28,6 +28,13 @@ let InvoicesController = class InvoicesController {
     async create(req, dto) {
         return this.invoicesService.create(req.user.id, dto);
     }
+    async send(req, id) {
+        return this.invoicesService.sendInvoiceToClient(req.user.id, id);
+    }
+    async getXml(req, id) {
+        const xml = await this.invoicesService.getInvoiceXml(req.user.id, id);
+        return { xml };
+    }
 };
 exports.InvoicesController = InvoicesController;
 __decorate([
@@ -45,6 +52,22 @@ __decorate([
     __metadata("design:paramtypes", [Object, invoices_dto_1.CreateInvoiceDto]),
     __metadata("design:returntype", Promise)
 ], InvoicesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)(':id/send'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], InvoicesController.prototype, "send", null);
+__decorate([
+    (0, common_1.Get)(':id/xml'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], InvoicesController.prototype, "getXml", null);
 exports.InvoicesController = InvoicesController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('invoices'),

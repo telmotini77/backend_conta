@@ -4,6 +4,7 @@ exports.CreateInvoiceDto = void 0;
 class CreateInvoiceDto {
     clientName;
     amount;
+    hasIva;
 }
 exports.CreateInvoiceDto = CreateInvoiceDto;
 //# sourceMappingURL=invoices.dto.js.map

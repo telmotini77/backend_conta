@@ -15,14 +15,17 @@ const prisma_service_1 = require("../prisma.service");
 const client_1 = require("@prisma/client");
 const sri_signer_service_1 = require("./sri-signer.service");
 const sri_soap_service_1 = require("./sri-soap.service");
+const accounting_service_1 = require("../accounting/accounting.service");
 let InvoicesService = class InvoicesService {
     prisma;
     sriSigner;
     sriSoap;
-    constructor(prisma, sriSigner, sriSoap) {
+    accountingService;
+    constructor(prisma, sriSigner, sriSoap, accountingService) {
         this.prisma = prisma;
         this.sriSigner = sriSigner;
         this.sriSoap = sriSoap;
+        this.accountingService = accountingService;
     }
     async findAll(userId) {
         return this.prisma.invoice.findMany({
@@ -58,6 +61,14 @@ let InvoicesService = class InvoicesService {
         if (!user) {
             throw new common_1.BadRequestException('Contribuyente/usuario no encontrado.');
         }
+        const hasIva = dto.hasIva !== false;
+        const amount = Number(dto.amount);
+        let subtotal = amount;
+        let iva = 0;
+        if (hasIva) {
+            subtotal = Number((amount / 1.15).toFixed(2));
+            iva = Number((amount - subtotal).toFixed(2));
+        }
         const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         const typeCode = '01';
         const ruc = user.ruc;
@@ -71,7 +82,7 @@ let InvoicesService = class InvoicesService {
         const accessKey = `${keyWithoutVerify}${verifyDigit}`;
         const rawXml = this.sriSigner.generateInvoiceXml({
             clientName: dto.clientName,
-            amount: Number(dto.amount),
+            amount: amount,
             claveAcceso: accessKey,
             createdAt: new Date(),
             ruc: user.ruc,
@@ -86,11 +97,47 @@ let InvoicesService = class InvoicesService {
             data: {
                 claveAcceso: accessKey,
                 clientName: dto.clientName,
-                amount: Number(dto.amount),
+                amount: amount,
+                subtotal: subtotal,
+                iva: iva,
                 status: invoiceStatus,
                 userId,
             },
         });
+        try {
+            await this.accountingService.createAutomaticEntry(userId, {
+                type: 'SALE',
+                description: `Venta Factura #${sequential} a ${dto.clientName}`,
+                invoiceId: invoice.id,
+                lines: [
+                    {
+                        accountCode: '1.01.02',
+                        accountName: 'Cuentas por Cobrar Clientes',
+                        debit: amount,
+                        credit: 0,
+                    },
+                    {
+                        accountCode: '4.01.01',
+                        accountName: 'Ventas de Servicios/Mercaderías',
+                        debit: 0,
+                        credit: subtotal,
+                    },
+                    ...(iva > 0
+                        ? [
+                            {
+                                accountCode: '2.01.03',
+                                accountName: 'IVA Ventas Cobrado',
+                                debit: 0,
+                                credit: iva,
+                            },
+                        ]
+                        : []),
+                ],
+            });
+        }
+        catch (err) {
+            console.error('Failed to log automatic sales entry:', err);
+        }
         if (invoiceStatus === client_1.InvoiceStatus.RECEIVED) {
             setTimeout(() => {
                 void (async () => {
@@ -113,12 +160,45 @@ let InvoicesService = class InvoicesService {
         }
         return invoice;
     }
+    async sendInvoiceToClient(userId, id) {
+        const invoice = await this.prisma.invoice.findFirst({
+            where: { id, userId },
+        });
+        if (!invoice) {
+            throw new common_1.NotFoundException('Factura no encontrada.');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        return this.prisma.invoice.update({
+            where: { id },
+            data: {
+                sentToClient: true,
+            },
+        });
+    }
+    async getInvoiceXml(userId, id) {
+        const invoice = await this.prisma.invoice.findFirst({
+            where: { id, userId },
+            include: { user: true },
+        });
+        if (!invoice) {
+            throw new common_1.NotFoundException('Factura no encontrada.');
+        }
+        return this.sriSigner.generateInvoiceXml({
+            clientName: invoice.clientName,
+            amount: invoice.amount,
+            claveAcceso: invoice.claveAcceso,
+            createdAt: invoice.createdAt,
+            ruc: invoice.user.ruc,
+            companyName: invoice.user.name,
+        });
+    }
 };
 exports.InvoicesService = InvoicesService;
 exports.InvoicesService = InvoicesService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         sri_signer_service_1.SriSignerService,
-        sri_soap_service_1.SriSoapService])
+        sri_soap_service_1.SriSoapService,
+        accounting_service_1.AccountingService])
 ], InvoicesService);
 //# sourceMappingURL=invoices.service.js.map

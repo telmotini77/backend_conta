@@ -1,9 +1,10 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateInvoiceDto } from './dto/invoices.dto';
 import { InvoiceStatus } from '@prisma/client';
 import { SriSignerService } from './sri-signer.service';
 import { SriSoapService } from './sri-soap.service';
+import { AccountingService } from '../accounting/accounting.service';
 
 @Injectable()
 export class InvoicesService {
@@ -11,6 +12,7 @@ export class InvoicesService {
     private prisma: PrismaService,
     private sriSigner: SriSignerService,
     private sriSoap: SriSoapService,
+    private accountingService: AccountingService,
   ) {}
 
   async findAll(userId: string) {
@@ -53,6 +55,17 @@ export class InvoicesService {
       throw new BadRequestException('Contribuyente/usuario no encontrado.');
     }
 
+    // Determine subtotal and IVA (Ecuador default: 15% IVA)
+    const hasIva = dto.hasIva !== false;
+    const amount = Number(dto.amount);
+    let subtotal = amount;
+    let iva = 0;
+
+    if (hasIva) {
+      subtotal = Number((amount / 1.15).toFixed(2));
+      iva = Number((amount - subtotal).toFixed(2));
+    }
+
     // Generate a real 49-digit access key
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const typeCode = '01'; // Factura
@@ -60,10 +73,10 @@ export class InvoicesService {
     const environment = '1'; // 1 = Pruebas, 2 = Producción
     const series = '001002';
     const sequential = Math.floor(
-      Math.random() * 900000000 + 100000000,
+      Math.random() * 900000000 + 100000000
     ).toString(); // 9 digits
     const numericCode = Math.floor(
-      Math.random() * 90000000 + 10000000,
+      Math.random() * 90000000 + 10000000
     ).toString(); // 8 digits
     const mode = '1'; // Normal
 
@@ -74,7 +87,7 @@ export class InvoicesService {
     // 1. Generate XML Invoice structure
     const rawXml = this.sriSigner.generateInvoiceXml({
       clientName: dto.clientName,
-      amount: Number(dto.amount),
+      amount: amount,
       claveAcceso: accessKey,
       createdAt: new Date(),
       ruc: user.ruc,
@@ -85,7 +98,6 @@ export class InvoicesService {
     const signedXml = this.sriSigner.signXml(rawXml);
 
     // 3. Send SOAP envelope to SRI Recepcion
-    // Using simulated responses for dev, but fully operational code path
     const reception = await this.sriSoap.sendToSri(signedXml, true);
 
     const invoiceStatus =
@@ -97,11 +109,48 @@ export class InvoicesService {
       data: {
         claveAcceso: accessKey,
         clientName: dto.clientName,
-        amount: Number(dto.amount),
+        amount: amount,
+        subtotal: subtotal,
+        iva: iva,
         status: invoiceStatus,
         userId,
       },
     });
+
+    // Automatic Accounting Journal Entry
+    try {
+      await this.accountingService.createAutomaticEntry(userId, {
+        type: 'SALE',
+        description: `Venta Factura #${sequential} a ${dto.clientName}`,
+        invoiceId: invoice.id,
+        lines: [
+          {
+            accountCode: '1.01.02',
+            accountName: 'Cuentas por Cobrar Clientes',
+            debit: amount,
+            credit: 0,
+          },
+          {
+            accountCode: '4.01.01',
+            accountName: 'Ventas de Servicios/Mercaderías',
+            debit: 0,
+            credit: subtotal,
+          },
+          ...(iva > 0
+            ? [
+                {
+                  accountCode: '2.01.03',
+                  accountName: 'IVA Ventas Cobrado',
+                  debit: 0,
+                  credit: iva,
+                },
+              ]
+            : []),
+        ],
+      });
+    } catch (err) {
+      console.error('Failed to log automatic sales entry:', err);
+    }
 
     // 4. Background check for authorization
     if (invoiceStatus === InvoiceStatus.RECEIVED) {
@@ -132,5 +181,45 @@ export class InvoicesService {
     }
 
     return invoice;
+  }
+
+  async sendInvoiceToClient(userId: string, id: string) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, userId },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada.');
+    }
+
+    // Simulate sending email/dispatch to customer
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    return this.prisma.invoice.update({
+      where: { id },
+      data: {
+        sentToClient: true,
+      },
+    });
+  }
+
+  async getInvoiceXml(userId: string, id: string) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id, userId },
+      include: { user: true },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada.');
+    }
+
+    return this.sriSigner.generateInvoiceXml({
+      clientName: invoice.clientName,
+      amount: invoice.amount,
+      claveAcceso: invoice.claveAcceso,
+      createdAt: invoice.createdAt,
+      ruc: invoice.user.ruc,
+      companyName: invoice.user.name,
+    });
   }
 }

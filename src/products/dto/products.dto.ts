@@ -6,6 +6,7 @@ export class CreateProductDto {
   cost: number;
   price: number;
   stock?: number;
+  hasIva?: boolean;
 }
 
 export class CreateTransactionDto {

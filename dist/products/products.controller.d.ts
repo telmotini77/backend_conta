@@ -11,13 +11,13 @@ export declare class ProductsController {
     findAll(req: RequestWithUser): Promise<({
         transactions: {
             id: string;
-            date: Date;
             productId: string;
             type: import("@prisma/client").$Enums.TransactionType;
             quantity: number;
             unitCost: number;
             totalCost: number;
             balanceStock: number;
+            date: Date;
         }[];
     } & {
         id: string;
@@ -26,6 +26,7 @@ export declare class ProductsController {
         stock: number;
         cost: number;
         price: number;
+        hasIva: boolean;
         userId: string;
     })[]>;
     create(req: RequestWithUser, dto: CreateProductDto): Promise<{
@@ -35,17 +36,28 @@ export declare class ProductsController {
         stock: number;
         cost: number;
         price: number;
+        hasIva: boolean;
         userId: string;
     }>;
     createTransaction(req: RequestWithUser, dto: CreateTransactionDto): Promise<{
         id: string;
-        date: Date;
         productId: string;
         type: import("@prisma/client").$Enums.TransactionType;
         quantity: number;
         unitCost: number;
         totalCost: number;
         balanceStock: number;
+        date: Date;
+    }>;
+    toggleIva(req: RequestWithUser, id: string): Promise<{
+        id: string;
+        name: string;
+        sku: string;
+        stock: number;
+        cost: number;
+        price: number;
+        hasIva: boolean;
+        userId: string;
     }>;
 }
 export {};

@@ -39,8 +39,8 @@ export declare class AssetsController {
     } & {
         id: string;
         date: Date;
-        assetId: string;
         amount: number;
+        assetId: string;
         period: string;
     })[]>;
     depreciate(req: RequestWithUser, body: {
@@ -58,8 +58,8 @@ export declare class AssetsController {
     } & {
         id: string;
         date: Date;
-        assetId: string;
         amount: number;
+        assetId: string;
         period: string;
     })[]>;
 }

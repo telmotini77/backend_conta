@@ -7,6 +7,7 @@ class CreateProductDto {
     cost;
     price;
     stock;
+    hasIva;
 }
 exports.CreateProductDto = CreateProductDto;
 class CreateTransactionDto {

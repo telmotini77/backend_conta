@@ -11,12 +11,14 @@ import {
   MatchWithholdingDto,
 } from './dto/reconciliation.dto';
 import { SriWithholdingsService } from './sri-withholdings.service';
+import { AccountingService } from '../accounting/accounting.service';
 
 @Injectable()
 export class ReconciliationService {
   constructor(
     private prisma: PrismaService,
     private sriWithholdings: SriWithholdingsService,
+    private accountingService: AccountingService,
   ) {}
 
   async getSummary(userId: string) {
@@ -171,6 +173,9 @@ export class ReconciliationService {
       userId,
     };
 
+    let invoiceClientName = '';
+    let providerName = '';
+
     if (dto.invoiceId) {
       const invoice = await this.prisma.invoice.findFirst({
         where: { id: dto.invoiceId, userId },
@@ -181,6 +186,7 @@ export class ReconciliationService {
       data.invoiceId = dto.invoiceId;
       data.source = 'SALE';
       data.type = 'INGRESS';
+      invoiceClientName = invoice.clientName;
       data.description =
         data.description || `Cobro de Factura a ${invoice.clientName}`;
     } else if (dto.purchaseId) {
@@ -193,11 +199,68 @@ export class ReconciliationService {
       data.purchaseId = dto.purchaseId;
       data.source = 'PURCHASE';
       data.type = 'EGRESS';
+      providerName = purchase.providerName;
       data.description =
         data.description || `Pago a Proveedor ${purchase.providerName}`;
     }
 
-    return this.prisma.cashTransaction.create({ data });
+    const tx = await this.prisma.cashTransaction.create({ data });
+
+    // Generate Journal Entry
+    try {
+      let debitAccount = '';
+      let debitName = '';
+      let creditAccount = '';
+      let creditName = '';
+
+      if (dto.invoiceId) {
+        debitAccount = '1.01.01';
+        debitName = 'Caja/Bancos';
+        creditAccount = '1.01.02';
+        creditName = 'Cuentas por Cobrar Clientes';
+      } else if (dto.purchaseId) {
+        debitAccount = '2.01.01';
+        debitName = 'Cuentas por Pagar Proveedores';
+        creditAccount = '1.01.01';
+        creditName = 'Caja/Bancos';
+      } else {
+        if (dto.type === 'INGRESS') {
+          debitAccount = '1.01.01';
+          debitName = 'Caja/Bancos';
+          creditAccount = '5.01.03';
+          creditName = 'Otros Ingresos / Ajuste Caja';
+        } else {
+          debitAccount = '5.01.03';
+          debitName = 'Otros Gastos / Ajuste Caja';
+          creditAccount = '1.01.01';
+          creditName = 'Caja/Bancos';
+        }
+      }
+
+      await this.accountingService.createAutomaticEntry(userId, {
+        type: 'CASH',
+        description: data.description || `Movimiento de caja: ${dto.type}`,
+        date: new Date(),
+        lines: [
+          {
+            accountCode: debitAccount,
+            accountName: debitName,
+            debit: tx.amount,
+            credit: 0,
+          },
+          {
+            accountCode: creditAccount,
+            accountName: creditName,
+            debit: 0,
+            credit: tx.amount,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error('Failed to log automatic cash journal entry:', err);
+    }
+
+    return tx;
   }
 
   async createWithholding(userId: string, dto: CreateWithholdingDto) {

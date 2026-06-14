@@ -24,6 +24,9 @@ let PurchasesController = class PurchasesController {
     async findAll(req) {
         return this.purchasesService.findAll(req.user.id);
     }
+    async create(req, dto) {
+        return this.purchasesService.create(req.user.id, dto);
+    }
     async sync(req) {
         return this.purchasesService.syncPurchases(req.user.id);
     }
@@ -36,6 +39,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], PurchasesController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Post)(),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, purchases_service_1.CreatePurchaseDto]),
+    __metadata("design:returntype", Promise)
+], PurchasesController.prototype, "create", null);
 __decorate([
     (0, common_1.Post)('sync'),
     __param(0, (0, common_1.Request)()),

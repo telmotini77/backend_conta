@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AssetsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
+const accounting_service_1 = require("../accounting/accounting.service");
 let AssetsService = class AssetsService {
     prisma;
-    constructor(prisma) {
+    accountingService;
+    constructor(prisma, accountingService) {
         this.prisma = prisma;
+        this.accountingService = accountingService;
     }
     async findAll(userId) {
         return this.prisma.asset.findMany({
@@ -83,6 +86,30 @@ let AssetsService = class AssetsService {
                     asset: true,
                 },
             });
+            try {
+                await this.accountingService.createAutomaticEntry(userId, {
+                    type: 'DEPRECIATION',
+                    description: `Depreciación Mensual Activo [${asset.name}] Período ${period}`,
+                    date: new Date(),
+                    lines: [
+                        {
+                            accountCode: '5.01.02',
+                            accountName: 'Gasto Depreciación Activos Fijos',
+                            debit: monthlyAmount,
+                            credit: 0,
+                        },
+                        {
+                            accountCode: '1.02.01',
+                            accountName: 'Depreciación Acumulada Activos Fijos',
+                            debit: 0,
+                            credit: monthlyAmount,
+                        },
+                    ],
+                });
+            }
+            catch (err) {
+                console.error('Failed to log automatic depreciation journal entry:', err);
+            }
             generated.push(entry);
         }
         return generated;
@@ -91,6 +118,7 @@ let AssetsService = class AssetsService {
 exports.AssetsService = AssetsService;
 exports.AssetsService = AssetsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        accounting_service_1.AccountingService])
 ], AssetsService);
 //# sourceMappingURL=assets.service.js.map

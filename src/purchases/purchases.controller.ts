@@ -1,5 +1,12 @@
-import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
-import { PurchasesService } from './purchases.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { PurchasesService, CreatePurchaseDto } from './purchases.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 interface RequestWithUser {
@@ -16,6 +23,14 @@ export class PurchasesController {
   @Get()
   async findAll(@Request() req: RequestWithUser) {
     return this.purchasesService.findAll(req.user.id);
+  }
+
+  @Post()
+  async create(
+    @Request() req: RequestWithUser,
+    @Body() dto: CreatePurchaseDto,
+  ) {
+    return this.purchasesService.create(req.user.id, dto);
   }
 
   @Post('sync')

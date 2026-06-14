@@ -13,12 +13,15 @@ exports.ReconciliationService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
 const sri_withholdings_service_1 = require("./sri-withholdings.service");
+const accounting_service_1 = require("../accounting/accounting.service");
 let ReconciliationService = class ReconciliationService {
     prisma;
     sriWithholdings;
-    constructor(prisma, sriWithholdings) {
+    accountingService;
+    constructor(prisma, sriWithholdings, accountingService) {
         this.prisma = prisma;
         this.sriWithholdings = sriWithholdings;
+        this.accountingService = accountingService;
     }
     async getSummary(userId) {
         const [invoices, purchases, cashTx, withholdings] = await Promise.all([
@@ -134,6 +137,8 @@ let ReconciliationService = class ReconciliationService {
             description: dto.description || '',
             userId,
         };
+        let invoiceClientName = '';
+        let providerName = '';
         if (dto.invoiceId) {
             const invoice = await this.prisma.invoice.findFirst({
                 where: { id: dto.invoiceId, userId },
@@ -144,6 +149,7 @@ let ReconciliationService = class ReconciliationService {
             data.invoiceId = dto.invoiceId;
             data.source = 'SALE';
             data.type = 'INGRESS';
+            invoiceClientName = invoice.clientName;
             data.description =
                 data.description || `Cobro de Factura a ${invoice.clientName}`;
         }
@@ -157,10 +163,66 @@ let ReconciliationService = class ReconciliationService {
             data.purchaseId = dto.purchaseId;
             data.source = 'PURCHASE';
             data.type = 'EGRESS';
+            providerName = purchase.providerName;
             data.description =
                 data.description || `Pago a Proveedor ${purchase.providerName}`;
         }
-        return this.prisma.cashTransaction.create({ data });
+        const tx = await this.prisma.cashTransaction.create({ data });
+        try {
+            let debitAccount = '';
+            let debitName = '';
+            let creditAccount = '';
+            let creditName = '';
+            if (dto.invoiceId) {
+                debitAccount = '1.01.01';
+                debitName = 'Caja/Bancos';
+                creditAccount = '1.01.02';
+                creditName = 'Cuentas por Cobrar Clientes';
+            }
+            else if (dto.purchaseId) {
+                debitAccount = '2.01.01';
+                debitName = 'Cuentas por Pagar Proveedores';
+                creditAccount = '1.01.01';
+                creditName = 'Caja/Bancos';
+            }
+            else {
+                if (dto.type === 'INGRESS') {
+                    debitAccount = '1.01.01';
+                    debitName = 'Caja/Bancos';
+                    creditAccount = '5.01.03';
+                    creditName = 'Otros Ingresos / Ajuste Caja';
+                }
+                else {
+                    debitAccount = '5.01.03';
+                    debitName = 'Otros Gastos / Ajuste Caja';
+                    creditAccount = '1.01.01';
+                    creditName = 'Caja/Bancos';
+                }
+            }
+            await this.accountingService.createAutomaticEntry(userId, {
+                type: 'CASH',
+                description: data.description || `Movimiento de caja: ${dto.type}`,
+                date: new Date(),
+                lines: [
+                    {
+                        accountCode: debitAccount,
+                        accountName: debitName,
+                        debit: tx.amount,
+                        credit: 0,
+                    },
+                    {
+                        accountCode: creditAccount,
+                        accountName: creditName,
+                        debit: 0,
+                        credit: tx.amount,
+                    },
+                ],
+            });
+        }
+        catch (err) {
+            console.error('Failed to log automatic cash journal entry:', err);
+        }
+        return tx;
     }
     async createWithholding(userId, dto) {
         const amountTotal = Number(dto.amountTotal);
@@ -328,6 +390,7 @@ exports.ReconciliationService = ReconciliationService;
 exports.ReconciliationService = ReconciliationService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        sri_withholdings_service_1.SriWithholdingsService])
+        sri_withholdings_service_1.SriWithholdingsService,
+        accounting_service_1.AccountingService])
 ], ReconciliationService);
 //# sourceMappingURL=reconciliation.service.js.map
