@@ -33,5 +33,22 @@ export declare class AuthController {
         name: string;
         ruc: string;
     };
+    getSriConfig(req: RequestWithUser): Promise<{
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        hasSignature: boolean;
+        signaturePasswordLength: number;
+    }>;
+    updateSriConfig(req: RequestWithUser, dto: {
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        signatureBase64?: string;
+        signaturePassword?: string;
+    }): Promise<{
+        success: boolean;
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        hasSignature: boolean;
+    }>;
 }
 export {};

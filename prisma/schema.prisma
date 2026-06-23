@@ -16,6 +16,12 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   
+  // SRI Configuration fields
+  sriSimulate       Boolean @default(true)
+  sriEnvironment    String  @default("1")
+  signatureBase64   String?
+  signaturePassword String?
+  
   products         Product[]
   assets           Asset[]
   invoices         Invoice[]

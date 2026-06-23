@@ -70,7 +70,7 @@ export class InvoicesService {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const typeCode = '01'; // Factura
     const ruc = user.ruc;
-    const environment = '1'; // 1 = Pruebas, 2 = Producción
+    const environment = user.sriEnvironment || '1'; // 1 = Pruebas, 2 = Producción
     const series = '001002';
     const sequential = Math.floor(
       Math.random() * 900000000 + 100000000
@@ -92,13 +92,25 @@ export class InvoicesService {
       createdAt: new Date(),
       ruc: user.ruc,
       companyName: user.name,
+      environment: environment,
     });
 
     // 2. Perform XAdES-BES cryptographic signature
-    const signedXml = this.sriSigner.signXml(rawXml);
+    const p12Buffer = user.signatureBase64
+      ? Buffer.from(user.signatureBase64, 'base64')
+      : undefined;
+    const signedXml = this.sriSigner.signXml(
+      rawXml,
+      p12Buffer,
+      user.signaturePassword || undefined,
+    );
 
     // 3. Send SOAP envelope to SRI Recepcion
-    const reception = await this.sriSoap.sendToSri(signedXml, true);
+    const reception = await this.sriSoap.sendToSri(
+      signedXml,
+      user.sriSimulate,
+      environment,
+    );
 
     const invoiceStatus =
       reception.status === 'RECEIVED'
@@ -159,7 +171,8 @@ export class InvoicesService {
           try {
             const authResult = await this.sriSoap.authorizeComprobante(
               accessKey,
-              true,
+              user.sriSimulate,
+              environment,
             );
             await this.prisma.invoice.update({
               where: { id: invoice.id },

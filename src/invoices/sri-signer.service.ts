@@ -8,6 +8,7 @@ export interface InvoiceData {
   createdAt: Date;
   ruc?: string;
   companyName?: string;
+  environment?: string;
 }
 
 @Injectable()
@@ -22,12 +23,13 @@ export class SriSignerService {
 
     const companyName = data.companyName || 'AURA CONTABLE AUTÓNOMO S.A.';
     const companyRuc = data.ruc || '1792455894001';
+    const env = data.environment || '1';
 
     // Build standard XML
     return (
       `<factura id="comprobante" version="1.1.0">` +
       `<infoTributaria>` +
-      `<ambiente>1</ambiente>` + // 1 = Pruebas, 2 = Producción
+      `<ambiente>${env}</ambiente>` + // 1 = Pruebas, 2 = Producción
       `<tipoEmision>1</tipoEmision>` + // 1 = Normal
       `<razonSocial>${this.escapeXml(companyName)}</razonSocial>` +
       `<nombreComercial>${this.escapeXml(companyName)}</nombreComercial>` +

@@ -82,4 +82,53 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
+
+  async getSriConfig(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+    return {
+      sriSimulate: user.sriSimulate,
+      sriEnvironment: user.sriEnvironment,
+      hasSignature: !!user.signatureBase64,
+      signaturePasswordLength: user.signaturePassword ? user.signaturePassword.length : 0,
+    };
+  }
+
+  async updateSriConfig(
+    userId: string,
+    dto: {
+      sriSimulate: boolean;
+      sriEnvironment: string;
+      signatureBase64?: string;
+      signaturePassword?: string;
+    },
+  ) {
+    const updateData: any = {
+      sriSimulate: dto.sriSimulate,
+      sriEnvironment: dto.sriEnvironment,
+    };
+
+    if (dto.signatureBase64 !== undefined) {
+      updateData.signatureBase64 = dto.signatureBase64 || null;
+    }
+    if (dto.signaturePassword !== undefined) {
+      updateData.signaturePassword = dto.signaturePassword || null;
+    }
+
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
+
+    return {
+      success: true,
+      sriSimulate: user.sriSimulate,
+      sriEnvironment: user.sriEnvironment,
+      hasSignature: !!user.signatureBase64,
+    };
+  }
 }

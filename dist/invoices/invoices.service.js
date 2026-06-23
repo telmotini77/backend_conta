@@ -72,7 +72,7 @@ let InvoicesService = class InvoicesService {
         const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         const typeCode = '01';
         const ruc = user.ruc;
-        const environment = '1';
+        const environment = user.sriEnvironment || '1';
         const series = '001002';
         const sequential = Math.floor(Math.random() * 900000000 + 100000000).toString();
         const numericCode = Math.floor(Math.random() * 90000000 + 10000000).toString();
@@ -87,9 +87,13 @@ let InvoicesService = class InvoicesService {
             createdAt: new Date(),
             ruc: user.ruc,
             companyName: user.name,
+            environment: environment,
         });
-        const signedXml = this.sriSigner.signXml(rawXml);
-        const reception = await this.sriSoap.sendToSri(signedXml, true);
+        const p12Buffer = user.signatureBase64
+            ? Buffer.from(user.signatureBase64, 'base64')
+            : undefined;
+        const signedXml = this.sriSigner.signXml(rawXml, p12Buffer, user.signaturePassword || undefined);
+        const reception = await this.sriSoap.sendToSri(signedXml, user.sriSimulate, environment);
         const invoiceStatus = reception.status === 'RECEIVED'
             ? client_1.InvoiceStatus.RECEIVED
             : client_1.InvoiceStatus.REJECTED;
@@ -142,7 +146,7 @@ let InvoicesService = class InvoicesService {
             setTimeout(() => {
                 void (async () => {
                     try {
-                        const authResult = await this.sriSoap.authorizeComprobante(accessKey, true);
+                        const authResult = await this.sriSoap.authorizeComprobante(accessKey, user.sriSimulate, environment);
                         await this.prisma.invoice.update({
                             where: { id: invoice.id },
                             data: {

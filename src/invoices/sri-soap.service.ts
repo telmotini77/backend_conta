@@ -11,14 +11,24 @@ export interface SriResponse {
 
 @Injectable()
 export class SriSoapService {
-  // SRI SOAP Endpoints (Sandbox/Testing by default)
-  private readonly receptionUrl =
-    'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline';
-  private readonly authorizationUrl =
-    'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline';
+  // Helper to get SRI SOAP URLs based on environment (1 = Pruebas, 2 = Producción)
+  private getUrls(environment = '1') {
+    const isProduction = environment === '2';
+    const baseUrl = isProduction
+      ? 'https://cel.sri.gob.ec'
+      : 'https://celcer.sri.gob.ec';
+    return {
+      receptionUrl: `${baseUrl}/comprobantes-electronicos-ws/RecepcionComprobantesOffline`,
+      authorizationUrl: `${baseUrl}/comprobantes-electronicos-ws/AutorizacionComprobantesOffline`,
+    };
+  }
 
   // Transmit XML to SRI Recepcion
-  async sendToSri(signedXml: string, simulate = true): Promise<SriResponse> {
+  async sendToSri(
+    signedXml: string,
+    simulate = true,
+    environment = '1',
+  ): Promise<SriResponse> {
     if (simulate) {
       // Return a simulated successful reception response after 1 second
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -39,8 +49,10 @@ export class SriSoapService {
       `</soapenv:Body>` +
       `</soapenv:Envelope>`;
 
+    const urls = this.getUrls(environment);
+
     try {
-      const response = await fetch(this.receptionUrl, {
+      const response = await fetch(urls.receptionUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/xml;charset=UTF-8',
@@ -61,7 +73,7 @@ export class SriSoapService {
       return {
         success: false,
         status: 'REJECTED',
-        errorMessage: `No se pudo conectar al SRI Recepción: ${errorMsg}. Entrando en modo simulado local.`,
+        errorMessage: `No se pudo conectar al SRI Recepción (${urls.receptionUrl}): ${errorMsg}.`,
       };
     }
   }
@@ -70,6 +82,7 @@ export class SriSoapService {
   async authorizeComprobante(
     claveAcceso: string,
     simulate = true,
+    environment = '1',
   ): Promise<SriResponse> {
     if (simulate) {
       // Return a simulated successful authorization response after 1.5 seconds
@@ -93,8 +106,10 @@ export class SriSoapService {
       `</soapenv:Body>` +
       `</soapenv:Envelope>`;
 
+    const urls = this.getUrls(environment);
+
     try {
-      const response = await fetch(this.authorizationUrl, {
+      const response = await fetch(urls.authorizationUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/xml;charset=UTF-8',
@@ -115,7 +130,7 @@ export class SriSoapService {
       return {
         success: false,
         status: 'RECEIVED', // remains as received to retry
-        errorMessage: `No se pudo conectar al SRI Autorización: ${errorMsg}.`,
+        errorMessage: `No se pudo conectar al SRI Autorización (${urls.authorizationUrl}): ${errorMsg}.`,
       };
     }
   }

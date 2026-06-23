@@ -9,9 +9,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SriSoapService = void 0;
 const common_1 = require("@nestjs/common");
 let SriSoapService = class SriSoapService {
-    receptionUrl = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/RecepcionComprobantesOffline';
-    authorizationUrl = 'https://celcer.sri.gob.ec/comprobantes-electronicos-ws/AutorizacionComprobantesOffline';
-    async sendToSri(signedXml, simulate = true) {
+    getUrls(environment = '1') {
+        const isProduction = environment === '2';
+        const baseUrl = isProduction
+            ? 'https://cel.sri.gob.ec'
+            : 'https://celcer.sri.gob.ec';
+        return {
+            receptionUrl: `${baseUrl}/comprobantes-electronicos-ws/RecepcionComprobantesOffline`,
+            authorizationUrl: `${baseUrl}/comprobantes-electronicos-ws/AutorizacionComprobantesOffline`,
+        };
+    }
+    async sendToSri(signedXml, simulate = true, environment = '1') {
         if (simulate) {
             await new Promise((resolve) => setTimeout(resolve, 1000));
             return {
@@ -28,8 +36,9 @@ let SriSoapService = class SriSoapService {
             `</ec:validarComprobante>` +
             `</soapenv:Body>` +
             `</soapenv:Envelope>`;
+        const urls = this.getUrls(environment);
         try {
-            const response = await fetch(this.receptionUrl, {
+            const response = await fetch(urls.receptionUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/xml;charset=UTF-8',
@@ -49,11 +58,11 @@ let SriSoapService = class SriSoapService {
             return {
                 success: false,
                 status: 'REJECTED',
-                errorMessage: `No se pudo conectar al SRI Recepción: ${errorMsg}. Entrando en modo simulado local.`,
+                errorMessage: `No se pudo conectar al SRI Recepción (${urls.receptionUrl}): ${errorMsg}.`,
             };
         }
     }
-    async authorizeComprobante(claveAcceso, simulate = true) {
+    async authorizeComprobante(claveAcceso, simulate = true, environment = '1') {
         if (simulate) {
             await new Promise((resolve) => setTimeout(resolve, 1500));
             const authNum = Math.floor(Math.random() * 900000000000) + 100000000000;
@@ -72,8 +81,9 @@ let SriSoapService = class SriSoapService {
             `</ec:autorizacionComprobante>` +
             `</soapenv:Body>` +
             `</soapenv:Envelope>`;
+        const urls = this.getUrls(environment);
         try {
-            const response = await fetch(this.authorizationUrl, {
+            const response = await fetch(urls.authorizationUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'text/xml;charset=UTF-8',
@@ -93,7 +103,7 @@ let SriSoapService = class SriSoapService {
             return {
                 success: false,
                 status: 'RECEIVED',
-                errorMessage: `No se pudo conectar al SRI Autorización: ${errorMsg}.`,
+                errorMessage: `No se pudo conectar al SRI Autorización (${urls.authorizationUrl}): ${errorMsg}.`,
             };
         }
     }

@@ -7,10 +7,9 @@ export interface SriResponse {
     rawResponse?: string;
 }
 export declare class SriSoapService {
-    private readonly receptionUrl;
-    private readonly authorizationUrl;
-    sendToSri(signedXml: string, simulate?: boolean): Promise<SriResponse>;
-    authorizeComprobante(claveAcceso: string, simulate?: boolean): Promise<SriResponse>;
+    private getUrls;
+    sendToSri(signedXml: string, simulate?: boolean, environment?: string): Promise<SriResponse>;
+    authorizeComprobante(claveAcceso: string, simulate?: boolean, environment?: string): Promise<SriResponse>;
     private parseReceptionResponse;
     private parseAuthorizationResponse;
 }

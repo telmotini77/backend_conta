@@ -50,9 +50,10 @@ let SriSignerService = class SriSignerService {
         const dateStr = this.formatDate(data.createdAt);
         const companyName = data.companyName || 'AURA CONTABLE AUTÓNOMO S.A.';
         const companyRuc = data.ruc || '1792455894001';
+        const env = data.environment || '1';
         return (`<factura id="comprobante" version="1.1.0">` +
             `<infoTributaria>` +
-            `<ambiente>1</ambiente>` +
+            `<ambiente>${env}</ambiente>` +
             `<tipoEmision>1</tipoEmision>` +
             `<razonSocial>${this.escapeXml(companyName)}</razonSocial>` +
             `<nombreComercial>${this.escapeXml(companyName)}</nombreComercial>` +

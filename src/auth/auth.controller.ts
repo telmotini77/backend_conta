@@ -38,4 +38,25 @@ export class AuthController {
   getProfile(@Request() req: RequestWithUser) {
     return req.user;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile/sri-config')
+  async getSriConfig(@Request() req: RequestWithUser) {
+    return this.authService.getSriConfig(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('profile/sri-config')
+  async updateSriConfig(
+    @Request() req: RequestWithUser,
+    @Body()
+    dto: {
+      sriSimulate: boolean;
+      sriEnvironment: string;
+      signatureBase64?: string;
+      signaturePassword?: string;
+    },
+  ) {
+    return this.authService.updateSriConfig(req.user.id, dto);
+  }
 }

@@ -5,6 +5,7 @@ export interface InvoiceData {
     createdAt: Date;
     ruc?: string;
     companyName?: string;
+    environment?: string;
 }
 export declare class SriSignerService {
     generateInvoiceXml(data: InvoiceData): string;

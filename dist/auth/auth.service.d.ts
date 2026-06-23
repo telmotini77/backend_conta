@@ -21,4 +21,21 @@ export declare class AuthService {
         };
         accessToken: string;
     }>;
+    getSriConfig(userId: string): Promise<{
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        hasSignature: boolean;
+        signaturePasswordLength: number;
+    }>;
+    updateSriConfig(userId: string, dto: {
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        signatureBase64?: string;
+        signaturePassword?: string;
+    }): Promise<{
+        success: boolean;
+        sriSimulate: boolean;
+        sriEnvironment: string;
+        hasSignature: boolean;
+    }>;
 }
