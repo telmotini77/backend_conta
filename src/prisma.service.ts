@@ -154,16 +154,21 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       },
     });
 
-    this.renderClient = new PrismaClient({
-      datasources: {
-        db: {
-          url: process.env.RENDER_DATABASE_URL,
+    const renderDbUrl = process.env.RENDER_DATABASE_URL;
+    if (renderDbUrl) {
+      this.renderClient = new PrismaClient({
+        datasources: {
+          db: {
+            url: renderDbUrl,
+          },
         },
-      },
-    });
+      });
+      // Return the Proxy wrapper around this instance for dual database writing
+      return createDualClientProxy(this.localClient, this.renderClient);
+    }
 
-    // Return the Proxy wrapper around this instance
-    return createDualClientProxy(this.localClient, this.renderClient);
+    // Single database mode (e.g. running in Render or local dev without double writing)
+    return this.localClient as any;
   }
 
   async onModuleInit() {

@@ -145,14 +145,18 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
                 },
             },
         });
-        this.renderClient = new client_1.PrismaClient({
-            datasources: {
-                db: {
-                    url: process.env.RENDER_DATABASE_URL,
+        const renderDbUrl = process.env.RENDER_DATABASE_URL;
+        if (renderDbUrl) {
+            this.renderClient = new client_1.PrismaClient({
+                datasources: {
+                    db: {
+                        url: renderDbUrl,
+                    },
                 },
-            },
-        });
-        return createDualClientProxy(this.localClient, this.renderClient);
+            });
+            return createDualClientProxy(this.localClient, this.renderClient);
+        }
+        return this.localClient;
     }
     async onModuleInit() {
         await this.$connect();
