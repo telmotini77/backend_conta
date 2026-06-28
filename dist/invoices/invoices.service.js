@@ -65,8 +65,9 @@ let InvoicesService = class InvoicesService {
         const amount = Number(dto.amount);
         let subtotal = amount;
         let iva = 0;
+        const ivaRate = dto.ivaRate !== undefined ? Number(dto.ivaRate) : 15;
         if (hasIva) {
-            subtotal = Number((amount / 1.15).toFixed(2));
+            subtotal = Number((amount / (1 + ivaRate / 100)).toFixed(2));
             iva = Number((amount - subtotal).toFixed(2));
         }
         const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -88,6 +89,7 @@ let InvoicesService = class InvoicesService {
             ruc: user.ruc,
             companyName: user.name,
             environment: environment,
+            ivaRate: hasIva ? ivaRate : 0,
         });
         const p12Buffer = user.signatureBase64
             ? Buffer.from(user.signatureBase64, 'base64')

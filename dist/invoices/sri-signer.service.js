@@ -45,12 +45,24 @@ const forge = __importStar(require("node-forge"));
 let SriSignerService = class SriSignerService {
     generateInvoiceXml(data) {
         const total = Number(data.amount);
-        const base = Number((total / 1.15).toFixed(2));
+        const ivaRate = data.ivaRate !== undefined ? Number(data.ivaRate) : 15;
+        const base = ivaRate > 0 ? Number((total / (1 + ivaRate / 100)).toFixed(2)) : total;
         const iva = Number((total - base).toFixed(2));
         const dateStr = this.formatDate(data.createdAt);
         const companyName = data.companyName || 'AURA CONTABLE AUTÓNOMO S.A.';
         const companyRuc = data.ruc || '1792455894001';
         const env = data.environment || '1';
+        let codigoPorcentaje = '4';
+        if (ivaRate === 0)
+            codigoPorcentaje = '0';
+        else if (ivaRate === 12)
+            codigoPorcentaje = '2';
+        else if (ivaRate === 14)
+            codigoPorcentaje = '3';
+        else if (ivaRate === 15)
+            codigoPorcentaje = '4';
+        else if (ivaRate === 5)
+            codigoPorcentaje = '5';
         return (`<factura id="comprobante" version="1.1.0">` +
             `<infoTributaria>` +
             `<ambiente>${env}</ambiente>` +
@@ -77,7 +89,7 @@ let SriSignerService = class SriSignerService {
             `<totalConImpuestos>` +
             `<totalImpuesto>` +
             `<codigo>2</codigo>` +
-            `<codigoPorcentaje>4</codigoPorcentaje>` +
+            `<codigoPorcentaje>${codigoPorcentaje}</codigoPorcentaje>` +
             `<baseImponible>${base.toFixed(2)}</baseImponible>` +
             `<valor>${iva.toFixed(2)}</valor>` +
             `</totalImpuesto>` +
@@ -103,8 +115,8 @@ let SriSignerService = class SriSignerService {
             `<impuestos>` +
             `<impuesto>` +
             `<codigo>2</codigo>` +
-            `<codigoPorcentaje>4</codigoPorcentaje>` +
-            `<tarifa>15.00</tarifa>` +
+            `<codigoPorcentaje>${codigoPorcentaje}</codigoPorcentaje>` +
+            `<tarifa>${ivaRate.toFixed(2)}</tarifa>` +
             `<baseImponible>${base.toFixed(2)}</baseImponible>` +
             `<valor>${iva.toFixed(2)}</valor>` +
             `</impuesto>` +

@@ -1,1 +1,1 @@
-{"version":3,"file":"invoices.dto.js","sourceRoot":"","sources":["../../../src/invoices/dto/invoices.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,gBAAgB;IAC3B,UAAU,CAAS;IACnB,MAAM,CAAS;IACf,MAAM,CAAW;CAClB;AAJD,4CAIC"}
+{"version":3,"file":"invoices.dto.js","sourceRoot":"","sources":["../../../src/invoices/dto/invoices.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,gBAAgB;IAC3B,UAAU,CAAS;IACnB,MAAM,CAAS;IACf,MAAM,CAAW;IACjB,OAAO,CAAU;CAClB;AALD,4CAKC"}

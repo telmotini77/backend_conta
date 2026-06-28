@@ -8,6 +8,7 @@ export declare class CreatePurchaseDto {
     amount: number;
     date: string;
     hasIva?: boolean;
+    ivaRate?: number;
     items?: {
         sku: string;
         quantity: number;

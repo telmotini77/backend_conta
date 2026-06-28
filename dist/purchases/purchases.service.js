@@ -21,6 +21,7 @@ class CreatePurchaseDto {
     amount;
     date;
     hasIva;
+    ivaRate;
     items;
 }
 exports.CreatePurchaseDto = CreatePurchaseDto;
@@ -57,8 +58,9 @@ let PurchasesService = class PurchasesService {
         const hasIva = dto.hasIva !== false;
         let subtotal = amount;
         let iva = 0;
+        const ivaRate = dto.ivaRate !== undefined ? Number(dto.ivaRate) : 15;
         if (hasIva) {
-            subtotal = Number((amount / 1.15).toFixed(2));
+            subtotal = Number((amount / (1 + ivaRate / 100)).toFixed(2));
             iva = Number((amount - subtotal).toFixed(2));
         }
         const keyWithoutVerify = `${new Date(dto.date).toISOString().slice(0, 10).replace(/-/g, '')}01${dto.providerRuc}1001001000${Math.floor(Math.random() * 900000) + 100000}12345678`;
