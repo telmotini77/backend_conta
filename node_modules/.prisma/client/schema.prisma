@@ -29,6 +29,7 @@ model User {
   withholdings     Withholding[]
   cashTransactions CashTransaction[]
   journalEntries   JournalEntry[]
+  categories       Category[]
 
   @@map("users")
 }
@@ -44,6 +45,21 @@ model Product {
   userId       String
   user         User                @relation(fields: [userId], references: [id])
   transactions KardexTransaction[]
+  categoryId   String?
+  category     Category?           @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([name, userId])
+  @@map("categories")
 }
 
 enum TransactionType {

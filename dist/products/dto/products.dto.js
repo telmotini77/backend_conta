@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateTransactionDto = exports.CreateProductDto = void 0;
+exports.UpdateProductDto = exports.CreateTransactionDto = exports.CreateProductDto = void 0;
 class CreateProductDto {
     sku;
     name;
@@ -8,6 +8,7 @@ class CreateProductDto {
     price;
     stock;
     hasIva;
+    categoryId;
 }
 exports.CreateProductDto = CreateProductDto;
 class CreateTransactionDto {
@@ -16,4 +17,10 @@ class CreateTransactionDto {
     quantity;
 }
 exports.CreateTransactionDto = CreateTransactionDto;
+class UpdateProductDto {
+    price;
+    categoryId;
+    addedStock;
+}
+exports.UpdateProductDto = UpdateProductDto;
 //# sourceMappingURL=products.dto.js.map

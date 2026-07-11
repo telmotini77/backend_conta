@@ -36,6 +36,12 @@ let ProductsController = class ProductsController {
     async toggleIva(req, id) {
         return this.productsService.toggleIva(req.user.id, id);
     }
+    async update(req, id, dto) {
+        return this.productsService.update(req.user.id, id, dto);
+    }
+    async delete(req, id) {
+        return this.productsService.delete(req.user.id, id);
+    }
 };
 exports.ProductsController = ProductsController;
 __decorate([
@@ -69,6 +75,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "toggleIva", null);
+__decorate([
+    (0, common_1.Put)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, products_dto_1.UpdateProductDto]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ProductsController.prototype, "delete", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Controller)('products'),

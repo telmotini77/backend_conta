@@ -22,6 +22,7 @@ let ProductsService = class ProductsService {
         return this.prisma.product.findMany({
             where: { userId },
             include: {
+                category: true,
                 transactions: {
                     orderBy: { date: 'desc' },
                     take: 10,
@@ -45,6 +46,7 @@ let ProductsService = class ProductsService {
                 stock: Number(dto.stock || 0),
                 hasIva: dto.hasIva !== false,
                 userId,
+                categoryId: dto.categoryId || null,
             },
         });
     }
@@ -139,6 +141,57 @@ let ProductsService = class ProductsService {
                 unitCost: product.cost,
                 totalCost: product.cost * quantity,
                 balanceStock: newStock,
+            },
+        });
+    }
+    async delete(userId, productId) {
+        const product = await this.prisma.product.findFirst({
+            where: { id: productId, userId },
+        });
+        if (!product) {
+            throw new common_1.BadRequestException('Producto no encontrado.');
+        }
+        await this.prisma.kardexTransaction.deleteMany({
+            where: { productId },
+        });
+        return this.prisma.product.delete({
+            where: { id: productId },
+        });
+    }
+    async update(userId, productId, dto) {
+        const product = await this.prisma.product.findFirst({
+            where: { id: productId, userId },
+        });
+        if (!product) {
+            throw new common_1.BadRequestException('Producto no encontrado.');
+        }
+        const updateData = {};
+        if (dto.price !== undefined) {
+            updateData.price = Number(dto.price);
+        }
+        if (dto.categoryId !== undefined) {
+            updateData.categoryId = dto.categoryId || null;
+        }
+        if (dto.addedStock && Number(dto.addedStock) > 0) {
+            const addedQty = Number(dto.addedStock);
+            const newStock = product.stock + addedQty;
+            updateData.stock = newStock;
+            await this.prisma.kardexTransaction.create({
+                data: {
+                    productId,
+                    type: client_1.TransactionType.INGRESS,
+                    quantity: addedQty,
+                    unitCost: product.cost,
+                    totalCost: product.cost * addedQty,
+                    balanceStock: newStock,
+                },
+            });
+        }
+        return this.prisma.product.update({
+            where: { id: productId },
+            data: updateData,
+            include: {
+                category: true,
             },
         });
     }

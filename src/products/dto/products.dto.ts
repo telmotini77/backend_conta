@@ -7,6 +7,7 @@ export class CreateProductDto {
   price: number;
   stock?: number;
   hasIva?: boolean;
+  categoryId?: string;
 }
 
 export class CreateTransactionDto {
@@ -14,3 +15,10 @@ export class CreateTransactionDto {
   type: TransactionType;
   quantity: number;
 }
+
+export class UpdateProductDto {
+  price?: number;
+  categoryId?: string;
+  addedStock?: number;
+}
+

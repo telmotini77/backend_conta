@@ -3,13 +3,14 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Body,
   Param,
   UseGuards,
   Request,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto, CreateTransactionDto } from './dto/products.dto';
+import { CreateProductDto, CreateTransactionDto, UpdateProductDto } from './dto/products.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 interface RequestWithUser {
@@ -52,5 +53,19 @@ export class ProductsController {
   @Put(':id/toggle-iva')
   async toggleIva(@Request() req: RequestWithUser, @Param('id') id: string) {
     return this.productsService.toggleIva(req.user.id, id);
+  }
+
+  @Put(':id')
+  async update(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: UpdateProductDto,
+  ) {
+    return this.productsService.update(req.user.id, id, dto);
+  }
+
+  @Delete(':id')
+  async delete(@Request() req: RequestWithUser, @Param('id') id: string) {
+    return this.productsService.delete(req.user.id, id);
   }
 }

@@ -1,10 +1,17 @@
 import { PrismaService } from '../prisma.service';
 import { TransactionType } from '@prisma/client';
-import { CreateProductDto } from './dto/products.dto';
+import { CreateProductDto, UpdateProductDto } from './dto/products.dto';
 export declare class ProductsService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(userId: string): Promise<({
+        category: {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+        } | null;
         transactions: {
             id: string;
             productId: string;
@@ -24,6 +31,7 @@ export declare class ProductsService {
         price: number;
         hasIva: boolean;
         userId: string;
+        categoryId: string | null;
     })[]>;
     create(userId: string, dto: CreateProductDto): Promise<{
         id: string;
@@ -34,6 +42,7 @@ export declare class ProductsService {
         price: number;
         hasIva: boolean;
         userId: string;
+        categoryId: string | null;
     }>;
     toggleIva(userId: string, productId: string): Promise<{
         id: string;
@@ -44,6 +53,7 @@ export declare class ProductsService {
         price: number;
         hasIva: boolean;
         userId: string;
+        categoryId: string | null;
     }>;
     seedInitialProducts(userId: string): Promise<void>;
     createTransaction(userId: string, productId: string, type: TransactionType, quantity: number): Promise<{
@@ -55,5 +65,35 @@ export declare class ProductsService {
         totalCost: number;
         balanceStock: number;
         date: Date;
+    }>;
+    delete(userId: string, productId: string): Promise<{
+        id: string;
+        name: string;
+        sku: string;
+        stock: number;
+        cost: number;
+        price: number;
+        hasIva: boolean;
+        userId: string;
+        categoryId: string | null;
+    }>;
+    update(userId: string, productId: string, dto: UpdateProductDto): Promise<{
+        category: {
+            id: string;
+            name: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+        } | null;
+    } & {
+        id: string;
+        name: string;
+        sku: string;
+        stock: number;
+        cost: number;
+        price: number;
+        hasIva: boolean;
+        userId: string;
+        categoryId: string | null;
     }>;
 }
