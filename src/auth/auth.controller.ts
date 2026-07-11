@@ -61,6 +61,11 @@ export class AuthController {
       sriEnvironment: string;
       signatureBase64?: string;
       signaturePassword?: string;
+      isBranch?: boolean;
+      parentCompanyRuc?: string;
+      establishmentCode?: string;
+      emissionPoint?: string;
+      establishmentAddress?: string;
     },
   ) {
     return this.authService.updateSriConfig(req.user.id, dto);

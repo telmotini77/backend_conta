@@ -95,6 +95,11 @@ export class AuthService {
       sriEnvironment: user.sriEnvironment,
       hasSignature: !!user.signatureBase64,
       signaturePasswordLength: user.signaturePassword ? user.signaturePassword.length : 0,
+      isBranch: user.isBranch,
+      parentCompanyRuc: user.parentCompanyRuc,
+      establishmentCode: user.establishmentCode,
+      emissionPoint: user.emissionPoint,
+      establishmentAddress: user.establishmentAddress,
     };
   }
 
@@ -108,6 +113,11 @@ export class AuthService {
     return {
       signatureBase64: user.signatureBase64,
       signaturePassword: user.signaturePassword,
+      isBranch: user.isBranch,
+      parentCompanyRuc: user.parentCompanyRuc,
+      establishmentCode: user.establishmentCode,
+      emissionPoint: user.emissionPoint,
+      establishmentAddress: user.establishmentAddress,
     };
   }
 
@@ -118,6 +128,11 @@ export class AuthService {
       sriEnvironment: string;
       signatureBase64?: string;
       signaturePassword?: string;
+      isBranch?: boolean;
+      parentCompanyRuc?: string;
+      establishmentCode?: string;
+      emissionPoint?: string;
+      establishmentAddress?: string;
     },
   ) {
     const updateData: any = {
@@ -131,6 +146,21 @@ export class AuthService {
     if (dto.signaturePassword !== undefined) {
       updateData.signaturePassword = dto.signaturePassword || null;
     }
+    if (dto.isBranch !== undefined) {
+      updateData.isBranch = dto.isBranch;
+    }
+    if (dto.parentCompanyRuc !== undefined) {
+      updateData.parentCompanyRuc = dto.parentCompanyRuc || null;
+    }
+    if (dto.establishmentCode !== undefined) {
+      updateData.establishmentCode = dto.establishmentCode;
+    }
+    if (dto.emissionPoint !== undefined) {
+      updateData.emissionPoint = dto.emissionPoint;
+    }
+    if (dto.establishmentAddress !== undefined) {
+      updateData.establishmentAddress = dto.establishmentAddress;
+    }
 
     const user = await this.prisma.user.update({
       where: { id: userId },
@@ -142,6 +172,11 @@ export class AuthService {
       sriSimulate: user.sriSimulate,
       sriEnvironment: user.sriEnvironment,
       hasSignature: !!user.signatureBase64,
+      isBranch: user.isBranch,
+      parentCompanyRuc: user.parentCompanyRuc,
+      establishmentCode: user.establishmentCode,
+      emissionPoint: user.emissionPoint,
+      establishmentAddress: user.establishmentAddress,
     };
   }
 }
