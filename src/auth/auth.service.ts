@@ -98,6 +98,19 @@ export class AuthService {
     };
   }
 
+  async getSriConfigInternal(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+    return {
+      signatureBase64: user.signatureBase64,
+      signaturePassword: user.signaturePassword,
+    };
+  }
+
   async updateSriConfig(
     userId: string,
     dto: {

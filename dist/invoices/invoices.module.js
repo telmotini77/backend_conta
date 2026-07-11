@@ -10,6 +10,7 @@ exports.InvoicesModule = void 0;
 const common_1 = require("@nestjs/common");
 const invoices_service_1 = require("./invoices.service");
 const invoices_controller_1 = require("./invoices.controller");
+const invoices_sync_controller_1 = require("./invoices-sync.controller");
 const prisma_service_1 = require("../prisma.service");
 const sri_signer_service_1 = require("./sri-signer.service");
 const sri_soap_service_1 = require("./sri-soap.service");
@@ -18,7 +19,7 @@ let InvoicesModule = class InvoicesModule {
 exports.InvoicesModule = InvoicesModule;
 exports.InvoicesModule = InvoicesModule = __decorate([
     (0, common_1.Module)({
-        controllers: [invoices_controller_1.InvoicesController],
+        controllers: [invoices_controller_1.InvoicesController, invoices_sync_controller_1.InvoicesSyncController],
         providers: [invoices_service_1.InvoicesService, prisma_service_1.PrismaService, sri_signer_service_1.SriSignerService, sri_soap_service_1.SriSoapService],
         exports: [invoices_service_1.InvoicesService],
     })

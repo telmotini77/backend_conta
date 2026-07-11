@@ -110,6 +110,31 @@ let InvoicesService = class InvoicesService {
                 userId,
             },
         });
+        if (dto.items && dto.items.length > 0) {
+            for (const item of dto.items) {
+                const product = await this.prisma.product.findUnique({
+                    where: { id: item.productId },
+                });
+                if (product) {
+                    const qty = Number(item.quantity);
+                    const newStock = product.stock - qty;
+                    await this.prisma.product.update({
+                        where: { id: item.productId },
+                        data: { stock: newStock },
+                    });
+                    await this.prisma.kardexTransaction.create({
+                        data: {
+                            productId: item.productId,
+                            type: 'EGRESS',
+                            quantity: qty,
+                            unitCost: product.cost,
+                            totalCost: product.cost * qty,
+                            balanceStock: newStock,
+                        },
+                    });
+                }
+            }
+        }
         try {
             await this.accountingService.createAutomaticEntry(userId, {
                 type: 'SALE',
@@ -196,6 +221,87 @@ let InvoicesService = class InvoicesService {
             createdAt: invoice.createdAt,
             ruc: invoice.user.ruc,
             companyName: invoice.user.name,
+        });
+    }
+    async syncSale(dto) {
+        const invoice = await this.prisma.invoice.create({
+            data: {
+                id: dto.invoiceId,
+                claveAcceso: dto.claveAcceso,
+                clientName: dto.clientName,
+                amount: Number(dto.amount),
+                subtotal: Number(dto.subtotal),
+                iva: Number(dto.iva),
+                status: dto.status,
+                userId: dto.userId,
+            },
+        });
+        if (dto.items && dto.items.length > 0) {
+            for (const item of dto.items) {
+                const product = await this.prisma.product.findUnique({
+                    where: { id: item.productId },
+                });
+                if (product) {
+                    const qty = Number(item.quantity);
+                    const newStock = product.stock - qty;
+                    await this.prisma.product.update({
+                        where: { id: item.productId },
+                        data: { stock: newStock },
+                    });
+                    await this.prisma.kardexTransaction.create({
+                        data: {
+                            productId: item.productId,
+                            type: 'EGRESS',
+                            quantity: qty,
+                            unitCost: product.cost,
+                            totalCost: product.cost * qty,
+                            balanceStock: newStock,
+                        },
+                    });
+                }
+            }
+        }
+        const sequential = dto.claveAcceso.slice(30, 39);
+        try {
+            await this.accountingService.createAutomaticEntry(dto.userId, {
+                type: 'SALE',
+                description: `Venta Factura #${sequential} a ${dto.clientName}`,
+                invoiceId: invoice.id,
+                lines: [
+                    {
+                        accountCode: '1.01.02',
+                        accountName: 'Cuentas por Cobrar Clientes',
+                        debit: Number(dto.amount),
+                        credit: 0,
+                    },
+                    {
+                        accountCode: '4.01.01',
+                        accountName: 'Ventas de Servicios/Mercaderías',
+                        debit: 0,
+                        credit: Number(dto.subtotal),
+                    },
+                    ...(Number(dto.iva) > 0
+                        ? [
+                            {
+                                accountCode: '2.01.03',
+                                accountName: 'IVA Ventas Cobrado',
+                                debit: 0,
+                                credit: Number(dto.iva),
+                            },
+                        ]
+                        : []),
+                ],
+            });
+        }
+        catch (err) {
+            console.error('Failed to log automatic sales entry in sync:', err);
+        }
+        return invoice;
+    }
+    async syncStatus(dto) {
+        return this.prisma.invoice.update({
+            where: { claveAcceso: dto.claveAcceso },
+            data: { status: dto.status },
         });
     }
 };

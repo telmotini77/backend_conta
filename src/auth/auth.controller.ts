@@ -5,6 +5,7 @@ import {
   Get,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto, LoginDto } from './dto/auth.dto';
@@ -43,6 +44,11 @@ export class AuthController {
   @Get('profile/sri-config')
   async getSriConfig(@Request() req: RequestWithUser) {
     return this.authService.getSriConfig(req.user.id);
+  }
+
+  @Get('profile/sri-config-internal')
+  async getSriConfigInternal(@Query('userId') userId: string) {
+    return this.authService.getSriConfigInternal(userId);
   }
 
   @UseGuards(JwtAuthGuard)
