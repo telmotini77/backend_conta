@@ -7,6 +7,9 @@ export interface InvoiceData {
     companyName?: string;
     environment?: string;
     ivaRate?: number;
+    establishmentCode?: string;
+    emissionPoint?: string;
+    establishmentAddress?: string;
 }
 export declare class SriSignerService {
     generateInvoiceXml(data: InvoiceData): string;

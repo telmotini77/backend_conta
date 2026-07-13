@@ -27,6 +27,18 @@ export declare class AuthController {
         };
         accessToken: string;
     }>;
+    loginEmployee(dto: LoginDto): Promise<{
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            role: string;
+            ownerId: string;
+            ownerRuc: string;
+            ownerName: string;
+        };
+        accessToken: string;
+    }>;
     getProfile(req: RequestWithUser): {
         id: string;
         email: string;
@@ -38,17 +50,41 @@ export declare class AuthController {
         sriEnvironment: string;
         hasSignature: boolean;
         signaturePasswordLength: number;
+        isBranch: boolean;
+        parentCompanyRuc: string | null;
+        establishmentCode: string;
+        emissionPoint: string;
+        establishmentAddress: string;
+    }>;
+    getSriConfigInternal(userId: string): Promise<{
+        signatureBase64: string | null;
+        signaturePassword: string | null;
+        isBranch: boolean;
+        parentCompanyRuc: string | null;
+        establishmentCode: string;
+        emissionPoint: string;
+        establishmentAddress: string;
     }>;
     updateSriConfig(req: RequestWithUser, dto: {
         sriSimulate: boolean;
         sriEnvironment: string;
         signatureBase64?: string;
         signaturePassword?: string;
+        isBranch?: boolean;
+        parentCompanyRuc?: string;
+        establishmentCode?: string;
+        emissionPoint?: string;
+        establishmentAddress?: string;
     }): Promise<{
         success: boolean;
         sriSimulate: boolean;
         sriEnvironment: string;
         hasSignature: boolean;
+        isBranch: boolean;
+        parentCompanyRuc: string | null;
+        establishmentCode: string;
+        emissionPoint: string;
+        establishmentAddress: string;
     }>;
 }
 export {};

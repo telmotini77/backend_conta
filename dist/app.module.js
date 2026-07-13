@@ -18,6 +18,7 @@ const purchases_module_1 = require("./purchases/purchases.module");
 const reconciliation_module_1 = require("./reconciliation/reconciliation.module");
 const accounting_module_1 = require("./accounting/accounting.module");
 const categories_module_1 = require("./categories/categories.module");
+const employees_module_1 = require("./employees/employees.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             reconciliation_module_1.ReconciliationModule,
             accounting_module_1.AccountingModule,
             categories_module_1.CategoriesModule,
+            employees_module_1.EmployeesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

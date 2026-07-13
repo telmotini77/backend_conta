@@ -83,6 +83,65 @@ export class AuthService {
     };
   }
 
+  async loginEmployee(dto: LoginDto) {
+    // 1. Find employee
+    const employee = await this.prisma.employee.findUnique({
+      where: { email: dto.email },
+      include: { owner: true },
+    });
+
+    if (employee) {
+      // Validate password
+      const isPasswordValid = await bcrypt.compare(dto.password, employee.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Credenciales incorrectas.');
+      }
+
+      // Sign token — include ownerId so billing_frontend loads owner data
+      const payload = { email: employee.email, sub: employee.id, role: 'employee', ownerId: employee.ownerId };
+      return {
+        user: {
+          id: employee.id,
+          email: employee.email,
+          name: employee.name,
+          role: 'employee',
+          ownerId: employee.ownerId,
+          ownerRuc: employee.owner.ruc,
+          ownerName: employee.owner.name,
+        },
+        accessToken: this.jwtService.sign(payload),
+      };
+    }
+
+    // 2. Fallback: Find User (Owner)
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Credenciales incorrectas.');
+    }
+
+    const payload = { email: user.email, sub: user.id, role: 'owner', ownerId: user.id };
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: 'owner',
+        ownerId: user.id,
+        ownerRuc: user.ruc,
+        ownerName: user.name,
+      },
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+
   async getSriConfig(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },

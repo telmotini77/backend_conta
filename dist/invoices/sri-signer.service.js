@@ -52,6 +52,9 @@ let SriSignerService = class SriSignerService {
         const companyName = data.companyName || 'AURA CONTABLE AUTÓNOMO S.A.';
         const companyRuc = data.ruc || '1792455894001';
         const env = data.environment || '1';
+        const estab = data.establishmentCode || '001';
+        const ptoEmi = data.emissionPoint || '002';
+        const address = data.establishmentAddress || 'Av. de los Granados N45 y Eloy Alfaro, Quito';
         let codigoPorcentaje = '4';
         if (ivaRate === 0)
             codigoPorcentaje = '0';
@@ -72,14 +75,14 @@ let SriSignerService = class SriSignerService {
             `<ruc>${companyRuc}</ruc>` +
             `<claveAcceso>${data.claveAcceso}</claveAcceso>` +
             `<codDoc>01</codDoc>` +
-            `<estab>001</estab>` +
-            `<ptoEmi>002</ptoEmi>` +
+            `<estab>${estab}</estab>` +
+            `<ptoEmi>${ptoEmi}</ptoEmi>` +
             `<secuencial>${data.claveAcceso.slice(30, 39)}</secuencial>` +
-            `<dirMatriz>Av. de los Granados N45 y Eloy Alfaro, Quito</dirMatriz>` +
+            `<dirMatriz>${this.escapeXml(address)}</dirMatriz>` +
             `</infoTributaria>` +
             `<infoFactura>` +
             `<fechaEmision>${dateStr}</fechaEmision>` +
-            `<dirEstablecimiento>Av. de los Granados N45 y Eloy Alfaro, Quito</dirEstablecimiento>` +
+            `<dirEstablecimiento>${this.escapeXml(address)}</dirEstablecimiento>` +
             `<obligadoContabilidad>SI</obligadoContabilidad>` +
             `<tipoIdentificacionComprador>05</tipoIdentificacionComprador>` +
             `<razonSocialComprador>${this.escapeXml(data.clientName)}</razonSocialComprador>` +

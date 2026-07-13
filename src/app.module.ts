@@ -9,6 +9,7 @@ import { PurchasesModule } from './purchases/purchases.module';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { CategoriesModule } from './categories/categories.module';
+import { EmployeesModule } from './employees/employees.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CategoriesModule } from './categories/categories.module';
     ReconciliationModule,
     AccountingModule,
     CategoriesModule,
+    EmployeesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

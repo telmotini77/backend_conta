@@ -9,11 +9,15 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate(payload: {
         sub: string;
         email: string;
+        role?: string;
+        ownerId?: string;
     }): Promise<{
         id: string;
         email: string;
         name: string;
         ruc: string;
+        isEmployee: boolean;
+        employeeId: string | undefined;
     }>;
 }
 export {};

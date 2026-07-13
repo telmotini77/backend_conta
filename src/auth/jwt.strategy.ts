@@ -14,19 +14,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(payload: { sub: string; email: string; role?: string; ownerId?: string }) {
+    const targetId = payload.ownerId || payload.sub;
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
+      where: { id: targetId },
     });
     if (!user) {
       throw new UnauthorizedException('Token inválido o usuario no encontrado');
     }
-    // Remove password hash from the request user object
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       ruc: user.ruc,
+      isEmployee: payload.role === 'employee',
+      employeeId: payload.role === 'employee' ? payload.sub : undefined,
     };
   }
 }

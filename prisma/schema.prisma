@@ -37,6 +37,7 @@ model User {
   cashTransactions CashTransaction[]
   journalEntries   JournalEntry[]
   categories       Category[]
+  employees        Employee[]
 
   @@map("users")
 }
@@ -230,4 +231,17 @@ model JournalEntryLine {
   accountName    String       // e.g. "Caja/Bancos"
   debit          Float        @default(0)
   credit         Float        @default(0)
+}
+
+// Employees: secondary accounts for billing_frontend access
+model Employee {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // Hashed
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("employees")
 }

@@ -28,11 +28,17 @@ let AuthController = class AuthController {
     async login(dto) {
         return this.authService.login(dto);
     }
+    async loginEmployee(dto) {
+        return this.authService.loginEmployee(dto);
+    }
     getProfile(req) {
         return req.user;
     }
     async getSriConfig(req) {
         return this.authService.getSriConfig(req.user.id);
+    }
+    async getSriConfigInternal(userId) {
+        return this.authService.getSriConfigInternal(userId);
     }
     async updateSriConfig(req, dto) {
         return this.authService.updateSriConfig(req.user.id, dto);
@@ -54,6 +60,13 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
+    (0, common_1.Post)('login-employee'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.LoginDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "loginEmployee", null);
+__decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)('profile'),
     __param(0, (0, common_1.Request)()),
@@ -69,6 +82,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getSriConfig", null);
+__decorate([
+    (0, common_1.Get)('profile/sri-config-internal'),
+    __param(0, (0, common_1.Query)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getSriConfigInternal", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)('profile/sri-config'),

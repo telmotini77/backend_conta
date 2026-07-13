@@ -25,8 +25,9 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
         this.prisma = prisma;
     }
     async validate(payload) {
+        const targetId = payload.ownerId || payload.sub;
         const user = await this.prisma.user.findUnique({
-            where: { id: payload.sub },
+            where: { id: targetId },
         });
         if (!user) {
             throw new common_1.UnauthorizedException('Token inválido o usuario no encontrado');
@@ -36,6 +37,8 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             email: user.email,
             name: user.name,
             ruc: user.ruc,
+            isEmployee: payload.role === 'employee',
+            employeeId: payload.role === 'employee' ? payload.sub : undefined,
         };
     }
 };

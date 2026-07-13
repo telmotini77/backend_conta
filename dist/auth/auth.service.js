@@ -106,6 +106,54 @@ let AuthService = class AuthService {
             accessToken: this.jwtService.sign(payload),
         };
     }
+    async loginEmployee(dto) {
+        const employee = await this.prisma.employee.findUnique({
+            where: { email: dto.email },
+            include: { owner: true },
+        });
+        if (employee) {
+            const isPasswordValid = await bcrypt.compare(dto.password, employee.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Credenciales incorrectas.');
+            }
+            const payload = { email: employee.email, sub: employee.id, role: 'employee', ownerId: employee.ownerId };
+            return {
+                user: {
+                    id: employee.id,
+                    email: employee.email,
+                    name: employee.name,
+                    role: 'employee',
+                    ownerId: employee.ownerId,
+                    ownerRuc: employee.owner.ruc,
+                    ownerName: employee.owner.name,
+                },
+                accessToken: this.jwtService.sign(payload),
+            };
+        }
+        const user = await this.prisma.user.findUnique({
+            where: { email: dto.email },
+        });
+        if (!user) {
+            throw new common_1.UnauthorizedException('Credenciales incorrectas.');
+        }
+        const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+        if (!isPasswordValid) {
+            throw new common_1.UnauthorizedException('Credenciales incorrectas.');
+        }
+        const payload = { email: user.email, sub: user.id, role: 'owner', ownerId: user.id };
+        return {
+            user: {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: 'owner',
+                ownerId: user.id,
+                ownerRuc: user.ruc,
+                ownerName: user.name,
+            },
+            accessToken: this.jwtService.sign(payload),
+        };
+    }
     async getSriConfig(userId) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
@@ -118,6 +166,28 @@ let AuthService = class AuthService {
             sriEnvironment: user.sriEnvironment,
             hasSignature: !!user.signatureBase64,
             signaturePasswordLength: user.signaturePassword ? user.signaturePassword.length : 0,
+            isBranch: user.isBranch,
+            parentCompanyRuc: user.parentCompanyRuc,
+            establishmentCode: user.establishmentCode,
+            emissionPoint: user.emissionPoint,
+            establishmentAddress: user.establishmentAddress,
+        };
+    }
+    async getSriConfigInternal(userId) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+        if (!user) {
+            throw new common_1.BadRequestException('Usuario no encontrado');
+        }
+        return {
+            signatureBase64: user.signatureBase64,
+            signaturePassword: user.signaturePassword,
+            isBranch: user.isBranch,
+            parentCompanyRuc: user.parentCompanyRuc,
+            establishmentCode: user.establishmentCode,
+            emissionPoint: user.emissionPoint,
+            establishmentAddress: user.establishmentAddress,
         };
     }
     async updateSriConfig(userId, dto) {
@@ -131,6 +201,21 @@ let AuthService = class AuthService {
         if (dto.signaturePassword !== undefined) {
             updateData.signaturePassword = dto.signaturePassword || null;
         }
+        if (dto.isBranch !== undefined) {
+            updateData.isBranch = dto.isBranch;
+        }
+        if (dto.parentCompanyRuc !== undefined) {
+            updateData.parentCompanyRuc = dto.parentCompanyRuc || null;
+        }
+        if (dto.establishmentCode !== undefined) {
+            updateData.establishmentCode = dto.establishmentCode;
+        }
+        if (dto.emissionPoint !== undefined) {
+            updateData.emissionPoint = dto.emissionPoint;
+        }
+        if (dto.establishmentAddress !== undefined) {
+            updateData.establishmentAddress = dto.establishmentAddress;
+        }
         const user = await this.prisma.user.update({
             where: { id: userId },
             data: updateData,
@@ -140,6 +225,11 @@ let AuthService = class AuthService {
             sriSimulate: user.sriSimulate,
             sriEnvironment: user.sriEnvironment,
             hasSignature: !!user.signatureBase64,
+            isBranch: user.isBranch,
+            parentCompanyRuc: user.parentCompanyRuc,
+            establishmentCode: user.establishmentCode,
+            emissionPoint: user.emissionPoint,
+            establishmentAddress: user.establishmentAddress,
         };
     }
 };
