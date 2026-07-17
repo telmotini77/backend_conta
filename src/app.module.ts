@@ -10,6 +10,7 @@ import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { AccountingModule } from './accounting/accounting.module';
 import { CategoriesModule } from './categories/categories.module';
 import { EmployeesModule } from './employees/employees.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { EmployeesModule } from './employees/employees.module';
     AccountingModule,
     CategoriesModule,
     EmployeesModule,
+    CompaniesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

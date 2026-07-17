@@ -37,6 +37,11 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
             email: user.email,
             name: user.name,
             ruc: user.ruc,
+            province: user.province,
+            city: user.city,
+            whatsapp: user.whatsapp,
+            businessTypes: user.businessTypes,
+            establishmentAddress: user.establishmentAddress,
             isEmployee: payload.role === 'employee',
             employeeId: payload.role === 'employee' ? payload.sub : undefined,
         };

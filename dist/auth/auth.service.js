@@ -74,6 +74,11 @@ let AuthService = class AuthService {
                 password: hashedPassword,
                 name: dto.name,
                 ruc: dto.ruc,
+                establishmentAddress: dto.address || 'Av. de los Granados N45 y Eloy Alfaro, Quito',
+                province: dto.province || '',
+                city: dto.city || '',
+                whatsapp: dto.whatsapp || '',
+                businessTypes: dto.businessTypes || [],
             },
         });
         return {
@@ -102,6 +107,11 @@ let AuthService = class AuthService {
                 email: user.email,
                 name: user.name,
                 ruc: user.ruc,
+                province: user.province,
+                city: user.city,
+                whatsapp: user.whatsapp,
+                businessTypes: user.businessTypes,
+                establishmentAddress: user.establishmentAddress,
             },
             accessToken: this.jwtService.sign(payload),
         };
@@ -150,6 +160,11 @@ let AuthService = class AuthService {
                 ownerId: user.id,
                 ownerRuc: user.ruc,
                 ownerName: user.name,
+                province: user.province,
+                city: user.city,
+                whatsapp: user.whatsapp,
+                businessTypes: user.businessTypes,
+                establishmentAddress: user.establishmentAddress,
             },
             accessToken: this.jwtService.sign(payload),
         };

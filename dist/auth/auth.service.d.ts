@@ -18,6 +18,11 @@ export declare class AuthService {
             email: string;
             name: string;
             ruc: string;
+            province: string;
+            city: string;
+            whatsapp: string;
+            businessTypes: string[];
+            establishmentAddress: string;
         };
         accessToken: string;
     }>;
@@ -30,6 +35,27 @@ export declare class AuthService {
             ownerId: string;
             ownerRuc: string;
             ownerName: string;
+            province?: undefined;
+            city?: undefined;
+            whatsapp?: undefined;
+            businessTypes?: undefined;
+            establishmentAddress?: undefined;
+        };
+        accessToken: string;
+    } | {
+        user: {
+            id: string;
+            email: string;
+            name: string;
+            role: string;
+            ownerId: string;
+            ownerRuc: string;
+            ownerName: string;
+            province: string;
+            city: string;
+            whatsapp: string;
+            businessTypes: string[];
+            establishmentAddress: string;
         };
         accessToken: string;
     }>;

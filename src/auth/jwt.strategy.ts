@@ -27,6 +27,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       email: user.email,
       name: user.name,
       ruc: user.ruc,
+      province: user.province,
+      city: user.city,
+      whatsapp: user.whatsapp,
+      businessTypes: user.businessTypes,
+      establishmentAddress: user.establishmentAddress,
       isEmployee: payload.role === 'employee',
       employeeId: payload.role === 'employee' ? payload.sub : undefined,
     };

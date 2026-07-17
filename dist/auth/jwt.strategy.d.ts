@@ -16,6 +16,11 @@ export declare class JwtStrategy extends JwtStrategy_base {
         email: string;
         name: string;
         ruc: string;
+        province: string;
+        city: string;
+        whatsapp: string;
+        businessTypes: string[];
+        establishmentAddress: string;
         isEmployee: boolean;
         employeeId: string | undefined;
     }>;

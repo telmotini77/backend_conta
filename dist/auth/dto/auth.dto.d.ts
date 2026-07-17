@@ -3,6 +3,11 @@ export declare class SignupDto {
     password: string;
     name: string;
     ruc: string;
+    address?: string;
+    province?: string;
+    city?: string;
+    whatsapp?: string;
+    businessTypes?: string[];
 }
 export declare class LoginDto {
     email: string;

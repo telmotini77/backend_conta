@@ -6,6 +6,11 @@ class SignupDto {
     password;
     name;
     ruc;
+    address;
+    province;
+    city;
+    whatsapp;
+    businessTypes;
 }
 exports.SignupDto = SignupDto;
 class LoginDto {
