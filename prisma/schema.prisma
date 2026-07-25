@@ -267,3 +267,31 @@ model Company {
 
   @@map("companies")
 }
+
+model BillingInvoice {
+  id          String              @id @default(uuid())
+  claveAcceso String              @unique
+  clientRuc   String              @default("9999999999999")
+  clientName  String
+  clientEmail String?
+  amount      Float
+  subtotal    Float
+  iva         Float
+  status      String              @default("RECEIVED")
+  sentToClient Boolean             @default(false)
+  userId      String
+  createdAt   DateTime            @default(now())
+  items       BillingInvoiceItem[]
+}
+
+model BillingInvoiceItem {
+  id        String         @id @default(uuid())
+  invoiceId String
+  invoice   BillingInvoice @relation(fields: [invoiceId], references: [id])
+  productId String
+  sku       String @default("000000")
+  name      String @default("Sin nombre")
+  price     Float  @default(0)
+  hasIva    Boolean @default(false)
+  quantity  Int
+}
