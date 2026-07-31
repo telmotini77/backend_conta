@@ -19,8 +19,8 @@ export declare class ProductsController {
         transactions: {
             id: string;
             productId: string;
-            type: import("@prisma/client").$Enums.TransactionType;
             quantity: number;
+            type: import("@prisma/client").$Enums.TransactionType;
             unitCost: number;
             totalCost: number;
             balanceStock: number;
@@ -28,31 +28,31 @@ export declare class ProductsController {
         }[];
     } & {
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     })[]>;
     create(req: RequestWithUser, dto: CreateProductDto): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
     createTransaction(req: RequestWithUser, dto: CreateTransactionDto): Promise<{
         id: string;
         productId: string;
-        type: import("@prisma/client").$Enums.TransactionType;
         quantity: number;
+        type: import("@prisma/client").$Enums.TransactionType;
         unitCost: number;
         totalCost: number;
         balanceStock: number;
@@ -60,12 +60,12 @@ export declare class ProductsController {
     }>;
     toggleIva(req: RequestWithUser, id: string): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
@@ -79,23 +79,23 @@ export declare class ProductsController {
         } | null;
     } & {
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
     delete(req: RequestWithUser, id: string): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;

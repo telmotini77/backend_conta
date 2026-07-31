@@ -24,11 +24,11 @@ export declare class AccountingController {
     } & {
         description: string;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: string;
         date: Date;
-        invoiceId: string | null;
         purchaseId: string | null;
     })[]>;
     getTrialBalance(req: RequestWithUser): Promise<{
@@ -50,11 +50,11 @@ export declare class AccountingController {
     } & {
         description: string;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: string;
         date: Date;
-        invoiceId: string | null;
         purchaseId: string | null;
     }>;
 }

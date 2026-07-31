@@ -15,8 +15,8 @@ export declare class ProductsService {
         transactions: {
             id: string;
             productId: string;
-            type: import("@prisma/client").$Enums.TransactionType;
             quantity: number;
+            type: import("@prisma/client").$Enums.TransactionType;
             unitCost: number;
             totalCost: number;
             balanceStock: number;
@@ -24,34 +24,34 @@ export declare class ProductsService {
         }[];
     } & {
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     })[]>;
     create(userId: string, dto: CreateProductDto): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
     toggleIva(userId: string, productId: string): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
@@ -59,8 +59,8 @@ export declare class ProductsService {
     createTransaction(userId: string, productId: string, type: TransactionType, quantity: number): Promise<{
         id: string;
         productId: string;
-        type: import("@prisma/client").$Enums.TransactionType;
         quantity: number;
+        type: import("@prisma/client").$Enums.TransactionType;
         unitCost: number;
         totalCost: number;
         balanceStock: number;
@@ -68,12 +68,12 @@ export declare class ProductsService {
     }>;
     delete(userId: string, productId: string): Promise<{
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;
@@ -87,12 +87,12 @@ export declare class ProductsService {
         } | null;
     } & {
         id: string;
-        name: string;
         sku: string;
-        stock: number;
-        cost: number;
+        name: string;
         price: number;
         hasIva: boolean;
+        stock: number;
+        cost: number;
         userId: string;
         categoryId: string | null;
     }>;

@@ -42,6 +42,7 @@ export declare class ReconciliationController {
         }[];
         withholdings: {
             id: string;
+            invoiceId: string | null;
             createdAt: Date;
             userId: string;
             type: import("@prisma/client").$Enums.WithholdingType;
@@ -53,18 +54,17 @@ export declare class ReconciliationController {
             amountTotal: number;
             clientOrProviderRuc: string;
             clientOrProviderName: string;
-            invoiceId: string | null;
             purchaseId: string | null;
         }[];
         cashTransactions: {
             description: string | null;
             id: string;
+            invoiceId: string | null;
             createdAt: Date;
             userId: string;
             type: import("@prisma/client").$Enums.CashTransactionType;
             date: Date;
             amount: number;
-            invoiceId: string | null;
             purchaseId: string | null;
             source: import("@prisma/client").$Enums.CashTransactionSource;
         }[];
@@ -72,17 +72,18 @@ export declare class ReconciliationController {
     createCashTransaction(req: RequestWithUser, dto: CreateCashTransactionDto): Promise<{
         description: string | null;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: import("@prisma/client").$Enums.CashTransactionType;
         date: Date;
         amount: number;
-        invoiceId: string | null;
         purchaseId: string | null;
         source: import("@prisma/client").$Enums.CashTransactionSource;
     }>;
     createWithholding(req: RequestWithUser, dto: CreateWithholdingDto): Promise<{
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: import("@prisma/client").$Enums.WithholdingType;
@@ -94,11 +95,11 @@ export declare class ReconciliationController {
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
-        invoiceId: string | null;
         purchaseId: string | null;
     }>;
     matchWithholding(req: RequestWithUser, dto: MatchWithholdingDto): Promise<{
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: import("@prisma/client").$Enums.WithholdingType;
@@ -110,11 +111,11 @@ export declare class ReconciliationController {
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
-        invoiceId: string | null;
         purchaseId: string | null;
     }>;
     syncWithholdings(req: RequestWithUser): Promise<{
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: import("@prisma/client").$Enums.WithholdingType;
@@ -126,7 +127,6 @@ export declare class ReconciliationController {
         amountTotal: number;
         clientOrProviderRuc: string;
         clientOrProviderName: string;
-        invoiceId: string | null;
         purchaseId: string | null;
     }[]>;
 }

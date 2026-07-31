@@ -56,58 +56,8 @@ export class ProductsService {
   }
 
   async seedInitialProducts(userId: string) {
-    const count = await this.prisma.product.count({ where: { userId } });
-    if (count === 0) {
-      await this.prisma.product.createMany({
-        data: [
-          {
-            sku: `COMP-${userId.slice(0, 4)}`,
-            name: 'Computadora Portátil Intel i7',
-            stock: 15,
-            cost: 450,
-            price: 800,
-            hasIva: true,
-            userId,
-          },
-          {
-            sku: `SMART-${userId.slice(0, 4)}`,
-            name: 'Smartphone Android Pro',
-            stock: 24,
-            cost: 280,
-            price: 500,
-            hasIva: true,
-            userId,
-          },
-          {
-            sku: `MON-${userId.slice(0, 4)}`,
-            name: 'Monitor Gamer 27"',
-            stock: 8,
-            cost: 120,
-            price: 250,
-            hasIva: true,
-            userId,
-          },
-          {
-            sku: `BOOK-${userId.slice(0, 4)}`,
-            name: 'Libro de Contabilidad General (Ecuador)',
-            stock: 30,
-            cost: 12,
-            price: 25,
-            hasIva: false,
-            userId,
-          },
-          {
-            sku: `MILK-${userId.slice(0, 4)}`,
-            name: 'Leche Semidescremada 1L (Canasta Básica)',
-            stock: 50,
-            cost: 0.75,
-            price: 1.10,
-            hasIva: false,
-            userId,
-          },
-        ],
-      });
-    }
+    // Auto-seeding disabled to ensure blank test database
+    return;
   }
 
   async createTransaction(

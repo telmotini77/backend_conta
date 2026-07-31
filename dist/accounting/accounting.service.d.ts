@@ -20,11 +20,11 @@ export declare class AccountingService {
     } & {
         description: string;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: string;
         date: Date;
-        invoiceId: string | null;
         purchaseId: string | null;
     })[]>;
     getTrialBalance(userId: string): Promise<{
@@ -53,11 +53,11 @@ export declare class AccountingService {
     } & {
         description: string;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: string;
         date: Date;
-        invoiceId: string | null;
         purchaseId: string | null;
     }>;
     createManual(userId: string, dto: {
@@ -76,11 +76,11 @@ export declare class AccountingService {
     } & {
         description: string;
         id: string;
+        invoiceId: string | null;
         createdAt: Date;
         userId: string;
         type: string;
         date: Date;
-        invoiceId: string | null;
         purchaseId: string | null;
     }>;
 }

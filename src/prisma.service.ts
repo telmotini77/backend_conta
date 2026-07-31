@@ -61,12 +61,19 @@ function createDualClientProxy(local: PrismaClient, render: PrismaClient): any {
                     return originalMethod.apply(modelTarget, args);
                   }
 
-                  // Execute write concurrently on both local and Render
-                  const [localResult] = await Promise.all([
-                    originalMethod.apply(modelTarget, args),
-                    renderMethod.apply(renderProp, args),
-                  ]);
-                  return localResult;
+                  // Optimize response times: Execute local write first and return immediately.
+                  // Sync Render database in the background asynchronously.
+                  const localPromise = originalMethod.apply(modelTarget, args);
+                  
+                  localPromise.then((localResult: any) => {
+                    renderMethod.apply(renderProp, args).catch((err: any) => {
+                      console.error(`[Dual DB Background Sync Error] failed for ${prop}.${modelProp}:`, err);
+                    });
+                  }).catch((err: any) => {
+                    console.error(`[Dual DB Local Write Error] failed for ${prop}.${modelProp}:`, err);
+                  });
+
+                  return await localPromise;
                 };
               }
             }
@@ -101,12 +108,14 @@ function createDualClientProxy(local: PrismaClient, render: PrismaClient): any {
           const isWriteRaw = prop.includes('executeRaw');
           if (isWriteRaw) {
             return async (...args: any[]) => {
-              console.log(`[Dual DB Write Raw] Executing ${prop} on both databases`);
-              const [localResult] = await Promise.all([
-                (local as any)[prop].apply(local, args),
-                (render as any)[prop].apply(render, args),
-              ]);
-              return localResult;
+              console.log(`[Dual DB Write Raw] Executing ${prop} on local and in background on Render`);
+              const localPromise = (local as any)[prop].apply(local, args);
+              localPromise.then(() => {
+                (render as any)[prop].apply(render, args).catch((err: any) => {
+                  console.error(`[Dual DB Background Raw Write Error] failed for ${prop}:`, err);
+                });
+              }).catch(() => {});
+              return await localPromise;
             };
           } else {
             return (local as any)[prop].bind(local);
